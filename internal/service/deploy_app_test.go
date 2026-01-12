@@ -1,4 +1,4 @@
-package usecase_test
+package service_test
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/t0gun/paas/internal/adapters/store"
 	"github.com/t0gun/paas/internal/contracts"
 	"github.com/t0gun/paas/internal/domain"
-	"github.com/t0gun/paas/internal/usecase"
+	"github.com/t0gun/paas/internal/service"
 )
 
 func TestDeployApp(t *testing.T) {
@@ -21,8 +21,8 @@ func TestDeployApp(t *testing.T) {
 		ok        bool
 		err       error
 	}{
-		{label: "invalid input: empty app id", appExists: false, appID: "", ok: false, err: usecase.ErrInvalidInput},
-		{label: "not found: app missing", appExists: false, appID: "missing", ok: false, err: usecase.ErrNotFound},
+		{label: "invalid input: empty app id", appExists: false, appID: "", ok: false, err: service.ErrInvalidInput},
+		{label: "not found: app missing", appExists: false, appID: "missing", ok: false, err: service.ErrNotFound},
 		{label: "ok: queues deployment", appExists: true, appID: "", ok: true}, // we will create an app, use its ID
 	}
 
@@ -30,7 +30,7 @@ func TestDeployApp(t *testing.T) {
 		t.Run(tt.label, func(t *testing.T) {
 			ctx := context.Background()
 			st := store.NewMemoryStore()
-			svc := usecase.NewAppService(st)
+			svc := service.NewAppService(st)
 			appID := tt.appID
 
 			if tt.appExists {
@@ -43,7 +43,7 @@ func TestDeployApp(t *testing.T) {
 				assert.NoError(t, st.CreateApp(ctx, app))
 				appID = app.ID
 			}
-			dep, err := svc.DeployApp(ctx, usecase.DeployAppParams{AppID: appID})
+			dep, err := svc.DeployApp(ctx, service.DeployAppParams{AppID: appID})
 			if tt.ok {
 				assert.NoError(t, err)
 				assert.NotEmpty(t, dep.ID)
@@ -94,7 +94,7 @@ func TestDeployApp_StoreErrors(t *testing.T) {
 	}{
 		{label: "GetAppByID unexpected error bubbles up", getAppErr: errors.New("boom"), ok: false},
 		{label: "CreateDeployment unexpected error bubbles up", createDepErr: errors.New("boom"), ok: false},
-		{label: "CreateDeployment not found maps to ErrNotFound", createDepErr: contracts.ErrNotFound, wantErr: usecase.ErrNotFound, ok: false},
+		{label: "CreateDeployment not found maps to ErrNotFound", createDepErr: contracts.ErrNotFound, wantErr: service.ErrNotFound, ok: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.label, func(t *testing.T) {
@@ -110,8 +110,8 @@ func TestDeployApp_StoreErrors(t *testing.T) {
 				createDepErr: tt.createDepErr,
 			}
 
-			svc := usecase.NewAppService(st)
-			dep, err := svc.DeployApp(ctx, usecase.DeployAppParams{AppID: app.ID})
+			svc := service.NewAppService(st)
+			dep, err := svc.DeployApp(ctx, service.DeployAppParams{AppID: app.ID})
 			assert.Error(t, err)
 			assert.Empty(t, dep.ID)
 
