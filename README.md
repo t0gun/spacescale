@@ -17,11 +17,10 @@ internal/
 ```
 
 ## Design Patterns Used
+
 - **Domain-Driven Design** - Business logic isolated in domain layer
 - **Repository Pattern** - Data access abstracted via Store interface
 - **Dependency Injection** - Services receive dependencies through constructors
-
-## Getting Started
 
 ### Prerequisites
 
@@ -38,8 +37,10 @@ go mod download
 
 ## Building and Development
 
-A make file has been provided to make testing and building easy.Read the make file to see all commands. make is availabe by default on all UNIX/Linux OS. To run a quick
-test outside a container. You can use 
+A make file has been provided to make testing and building easy.Read the make file to see all commands. make is availabe
+by default on all UNIX/Linux OS. To run a quick
+test outside a container. You can use
+
 ```bash
 make test
 ```

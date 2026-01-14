@@ -122,3 +122,76 @@ func TestDeployApp_StoreErrors(t *testing.T) {
 		})
 	}
 }
+
+type fakeRuntime struct {
+	url    string
+	err    error
+	called int
+}
+
+func (f *fakeRuntime) Deploy(ctx context.Context, app domain.App) (string, error) {
+	f.called++
+	return f.url, f.err
+}
+
+var _ contracts.Runtime = (*fakeRuntime)(nil)
+
+func TestProcessNextDeployment(t *testing.T) {
+	tests := []struct {
+		label      string
+		queueWork  bool
+		runtimeErr error
+		ok         bool
+		wantErr    error
+	}{
+		{label: "no queued deployments", queueWork: false, ok: false, wantErr: service.ErrNoWork},
+		{label: "runtime fails", queueWork: true, runtimeErr: errors.New("boom"), ok: false},
+		{label: "runtime ok", queueWork: true, runtimeErr: nil, ok: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.label, func(t *testing.T) {
+			ctx := context.Background()
+			st := store.NewMemoryStore()
+
+			rt := &fakeRuntime{
+				url: "https://hello.yourdomain.come",
+				err: tt.runtimeErr,
+			}
+			svc := service.NewAppServiceWithRuntime(st, rt)
+
+			var app domain.App
+			if tt.queueWork {
+				var err error
+				app, err = domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: 8080})
+				assert.NoError(t, err)
+				assert.NoError(t, st.CreateApp(ctx, app))
+				dep := domain.NewDeployment(app.ID)
+				assert.NoError(t, st.CreateDeployment(ctx, dep))
+			}
+			dep, err := svc.ProcessNextDeployment(ctx)
+			if tt.ok {
+				assert.NoError(t, err)
+				assert.Equal(t, domain.DeploymentStatusRunning, dep.Status)
+				assert.NotEmpty(t, dep.ID)
+				assert.NotNil(t, dep.URL)
+				assert.Equal(t, rt.url, *dep.URL)
+				assert.Nil(t, dep.Error)
+				assert.Equal(t, 1, rt.called)
+				assert.WithinDuration(t, time.Now().UTC(), dep.UpdatedAt, 2*time.Second)
+				return
+			}
+			assert.Error(t, err)
+
+			// the "no work" case returns empty deployment and runtime not called
+			if tt.wantErr != nil {
+				assert.Error(t, err, tt.wantErr)
+				assert.Empty(t, dep.ID)
+				assert.Empty(t, dep.ID)
+				assert.Equal(t, 0, rt.called)
+				return
+			}
+
+		})
+	}
+}
