@@ -25,6 +25,7 @@ type MemoryStore struct {
 	queuedDeploymentIDs  []string
 }
 
+// NewMemoryStore returns a ready to use in memory store.
 func NewMemoryStore() *MemoryStore {
 	return &MemoryStore{
 		appByID:   make(map[string]domain.App),
@@ -36,6 +37,7 @@ func NewMemoryStore() *MemoryStore {
 	}
 }
 
+// CreateApp stores a new app and enforces unique names.
 func (s *MemoryStore) CreateApp(ctx context.Context, app domain.App) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -50,6 +52,7 @@ func (s *MemoryStore) CreateApp(ctx context.Context, app domain.App) error {
 	return nil
 }
 
+// GetAppByID returns an app by its id.
 func (s *MemoryStore) GetAppByID(ctx context.Context, id string) (domain.App, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -61,6 +64,7 @@ func (s *MemoryStore) GetAppByID(ctx context.Context, id string) (domain.App, er
 	return app, nil
 }
 
+// GetAppByName returns an app by its name.
 func (s *MemoryStore) GetAppByName(ctx context.Context, name string) (domain.App, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -72,6 +76,7 @@ func (s *MemoryStore) GetAppByName(ctx context.Context, name string) (domain.App
 	return app, nil
 }
 
+// ListApps returns all apps in the store.
 func (s *MemoryStore) ListApps(ctx context.Context) ([]domain.App, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -82,6 +87,7 @@ func (s *MemoryStore) ListApps(ctx context.Context) ([]domain.App, error) {
 	}
 	return out, nil
 }
+// CreateDeployment stores a deployment and enqueues it when queued.
 func (s *MemoryStore) CreateDeployment(ctx context.Context, dep domain.Deployment) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -108,6 +114,7 @@ func (s *MemoryStore) CreateDeployment(ctx context.Context, dep domain.Deploymen
 	return nil
 }
 
+// GetDeploymentByID returns a deployment by its id.
 func (s *MemoryStore) GetDeploymentByID(ctx context.Context, id string) (domain.Deployment, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -119,6 +126,7 @@ func (s *MemoryStore) GetDeploymentByID(ctx context.Context, id string) (domain.
 	return dep, nil
 }
 
+// ListDeploymentsByAppID returns deployments for a single app.
 func (s *MemoryStore) ListDeploymentsByAppID(ctx context.Context, appID string) ([]domain.Deployment, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

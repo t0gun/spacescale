@@ -6,12 +6,14 @@ import (
 	"github.com/t0gun/paas/internal/domain"
 )
 
+// createAppReq is the request body for creating an app.
 type createAppReq struct {
 	Name  string `json:"name"`
 	Image string `json:"image"`
 	Port  int    `json:"port"`
 }
 
+// appResp is the API response shape for an app.
 type appResp struct {
 	ID        string           `json:"id"`
 	Name      string           `json:"name"`
@@ -22,9 +24,7 @@ type appResp struct {
 	UpdatedAt time.Time        `json:"updatedAt"`
 }
 
-// toAppResp convert domain types which are business logic types to JSON field names. sometimes we can decide to hide
-// fields and also create data shapes that might not match api layer. this separation of concerns prevents constant
-// breakage
+// toAppResp maps a domain app to an API response shape.
 func toAppResp(a domain.App) appResp {
 	return appResp{
 		ID:        a.ID,
@@ -37,6 +37,7 @@ func toAppResp(a domain.App) appResp {
 	}
 }
 
+// deploymentResp is the API response shape for a deployment.
 type deploymentResp struct {
 	ID        string                  `json:"id"`
 	AppID     string                  `json:"appId"`
@@ -47,6 +48,7 @@ type deploymentResp struct {
 	UpdatedAt time.Time               `json:"updatedAt"`
 }
 
+// toDeploymentResp maps a domain deployment to an API response shape.
 func toDeploymentResp(d domain.Deployment) deploymentResp {
 	return deploymentResp{
 		ID:        d.ID,

@@ -8,15 +8,18 @@ import (
 	"github.com/t0gun/paas/internal/service"
 )
 
+// Server wires HTTP handlers to the application service.
 type Server struct {
 	svc         *service.AppService
 	workerToken string
 }
 
+// NewServer builds an API server with the service and worker auth token.
 func NewServer(svc *service.AppService, workerToken string) *Server {
 	return &Server{svc: svc, workerToken: workerToken}
 }
 
+// Router builds the HTTP routes and middleware stack.
 func (s *Server) Router() http.Handler {
 	r := chi.NewRouter()
 

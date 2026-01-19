@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// AppStatus represents the lifecycle state of an app.
 type AppStatus string
 
 const (
@@ -16,6 +17,7 @@ const (
 	AppStatusPaused   AppStatus = "PAUSED"
 )
 
+// DeploymentStatus represents the lifecycle state of a deployment.
 type DeploymentStatus string
 
 const (
@@ -26,6 +28,7 @@ const (
 	DeploymentStatusFailed    DeploymentStatus = "FAILED"
 )
 
+// App is the core application model stored by the platform.
 type App struct {
 	ID        string
 	Name      string
@@ -36,12 +39,14 @@ type App struct {
 	UpdatedAt time.Time
 }
 
+// NewAppParams holds the input used to construct an App.
 type NewAppParams struct {
 	Name  string
 	Image string
 	Port  int
 }
 
+// NewApp validates input and returns a new App with default status and timestamps.
 func NewApp(p NewAppParams) (App, error) {
 	if err := ValidateAppName(p.Name); err != nil {
 		return App{}, err
@@ -66,6 +71,7 @@ func NewApp(p NewAppParams) (App, error) {
 	}, nil
 }
 
+// Deployment tracks a single deployment attempt for an app.
 type Deployment struct {
 	ID        string
 	AppID     string
@@ -76,6 +82,7 @@ type Deployment struct {
 	UpdatedAt time.Time
 }
 
+// NewDeployment creates a queued deployment with a new id and timestamps.
 func NewDeployment(appID string) Deployment {
 	now := time.Now().UTC()
 	return Deployment{

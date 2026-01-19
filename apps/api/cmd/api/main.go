@@ -16,6 +16,7 @@ import (
 	"github.com/t0gun/paas/internal/service"
 )
 
+// main starts the API server and waits for a shutdown signal.
 func main() {
 	// Read runtime config from env with defaults so local dev works out of the box.
 	addr := env("ADDR", ":8080")
@@ -61,6 +62,7 @@ func main() {
 	_ = srv.Shutdown(ctx)
 }
 
+// env returns an environment variable or a default value.
 func env(key, def string) string {
 	// Return the env var value if set, otherwise fall back to the default.
 	if v := os.Getenv(key); v != "" {

@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// Validation errors returned by helper functions.
 var (
 	ErrInvalidAppName = errors.New("invalid app name")
 	ErrInvalidImage   = errors.New("invalid image ref")
@@ -15,6 +16,7 @@ var (
 	appNameRe = regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`)
 )
 
+// ValidateAppName checks the app name format and returns a validation error.
 func ValidateAppName(name string) error {
 	name = strings.TrimSpace(name)
 	if name == "" || !appNameRe.MatchString(name) {
@@ -23,6 +25,7 @@ func ValidateAppName(name string) error {
 	return nil
 }
 
+// ValidateImageRef checks that the image reference is not empty.
 func ValidateImageRef(image string) error {
 	if strings.TrimSpace(image) == "" {
 		return ErrInvalidImage
@@ -31,6 +34,7 @@ func ValidateImageRef(image string) error {
 	return nil
 }
 
+// ValidatePort ensures the port is within the valid TCP range.
 func ValidatePort(port int) error {
 	if port < 1 || port > 65535 {
 		return ErrInvalidPort

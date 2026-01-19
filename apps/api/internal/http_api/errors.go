@@ -7,6 +7,7 @@ import (
 	"github.com/t0gun/paas/internal/service"
 )
 
+// mapServiceErr converts service errors into HTTP status codes and messages.
 func mapServiceErr(err error) (status int, msg string) {
 	switch {
 	case errors.Is(err, service.ErrInvalidInput):
