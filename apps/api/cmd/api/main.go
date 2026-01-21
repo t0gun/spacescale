@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/t0gun/paas/internal/adapters/runtime/fake"
+	"github.com/t0gun/paas/internal/adapters/runtime/docker"
 	"github.com/t0gun/paas/internal/adapters/store"
 	"github.com/t0gun/paas/internal/http_api"
 	"github.com/t0gun/paas/internal/service"
@@ -24,7 +24,20 @@ func main() {
 	baseDomain := env("BASE_DOMAIN", "example.com")
 
 	st := store.NewMemoryStore()
-	rt := fake.New(baseDomain)
+	rt, err := docker.New(docker.WithEdge(
+		docker.EdgeConfig{
+			BaseDomain: baseDomain,
+			TraefikNet: env("TRAEFIK_NET", "traefik"),
+			Scheme:     env("TRAEFIK_ENTRYPOINT", "web"),
+			EnableTLS:  env("ENABLE_TLS", "") == "1",
+			// CertResolver optional later:
+			// CertResolver: env("CERT_RESOLVER", ""),
+		},
+	))
+	if err != nil {
+		log.Fatalf("docker runtime init: %v", err)
+	}
+
 	svc := service.NewAppServiceWithRuntime(st, rt)
 	api := http_api.NewServer(svc, workerToken)
 

@@ -60,9 +60,18 @@ func doRequest(t *testing.T, req *http.Request) *http.Response {
 	return res
 }
 
-func createApp(t *testing.T, ts *httptest.Server, name, image string, port int) map[string]any {
+func createApp(t *testing.T, ts *httptest.Server, name, image string, port *int, expose *bool, env map[string]string) map[string]any {
 	t.Helper()
-	body := map[string]any{"name": name, "image": image, "port": port}
+	body := map[string]any{"name": name, "image": image}
+	if port != nil {
+		body["port"] = *port
+	}
+	if expose != nil {
+		body["expose"] = *expose
+	}
+	if env != nil {
+		body["env"] = env
+	}
 	reqBody, err := json.Marshal(body)
 	assert.NoError(t, err)
 
@@ -88,7 +97,7 @@ func TestCreateApp(t *testing.T) {
 		ts, _ := newTestServer(t, "")
 		defer ts.Close()
 
-		got := createApp(t, ts, "hello", "nginx:latest", 8080)
+		got := createApp(t, ts, "hello", "nginx:latest", ptrInt(8080), nil, nil)
 		assert.NotEmpty(t, got["id"])
 		assert.Equal(t, "hello", got["name"])
 		assert.Equal(t, "nginx:latest", got["image"])
@@ -124,7 +133,7 @@ func TestCreateAppConflict(t *testing.T) {
 	defer ts.Close()
 
 	// create first
-	createApp(t, ts, "hello", "nginx:latest", 8080)
+	createApp(t, ts, "hello", "nginx:latest", ptrInt(8080), nil, nil)
 
 	// create again with same name => 409
 	body := `{"name":"hello","image":"nginx:latest","port":8080}`
@@ -139,7 +148,7 @@ func TestDeployAndProcessAndListDeployments(t *testing.T) {
 	defer ts.Close()
 
 	// create app
-	created := createApp(t, ts, "hello", "nginx:latest", 8080)
+	created := createApp(t, ts, "hello", "nginx:latest", ptrInt(8080), nil, nil)
 	appID, _ := created["id"].(string)
 	assert.NotEmpty(t, appID)
 
@@ -169,6 +178,30 @@ func TestDeployAndProcessAndListDeployments(t *testing.T) {
 	assert.NoError(t, json.NewDecoder(listRes.Body).Decode(&deps))
 	assert.Len(t, deps, 1)
 	assert.Equal(t, "RUNNING", deps[0]["status"])
+}
+
+func TestDeployNoExpose(t *testing.T) {
+	ts, _ := newTestServer(t, "")
+	defer ts.Close()
+
+	expose := false
+	created := createApp(t, ts, "hello", "nginx:latest", nil, &expose, nil)
+	appID, _ := created["id"].(string)
+	assert.NotEmpty(t, appID)
+
+	deployReq := newRequest(t, http.MethodPost, ts.URL+"/v0/apps/"+appID+"/deploy", nil)
+	deployRes := doRequest(t, deployReq)
+	assert.Equal(t, http.StatusAccepted, deployRes.StatusCode)
+
+	processReq := newRequest(t, http.MethodPost, ts.URL+"/v0/deployments/next:process", nil)
+	processRes := doRequest(t, processReq)
+	assert.Equal(t, http.StatusOK, processRes.StatusCode)
+
+	var dep map[string]any
+	assert.NoError(t, json.NewDecoder(processRes.Body).Decode(&dep))
+	assert.Equal(t, "RUNNING", dep["status"])
+	_, ok := dep["url"]
+	assert.False(t, ok)
 }
 
 func TestDeployMissingApp(t *testing.T) {
@@ -237,7 +270,7 @@ func TestListApps(t *testing.T) {
 		ts, _ := newTestServer(t, "")
 		defer ts.Close()
 
-		created := createApp(t, ts, "hello", "nginx:latest", 8080)
+		created := createApp(t, ts, "hello", "nginx:latest", ptrInt(8080), nil, nil)
 
 		req := newRequest(t, http.MethodGet, ts.URL+"/v0/apps", nil)
 		res := doRequest(t, req)
@@ -256,7 +289,7 @@ func TestGetAppByID(t *testing.T) {
 		ts, _ := newTestServer(t, "")
 		defer ts.Close()
 
-		created := createApp(t, ts, "hello", "nginx:latest", 8080)
+		created := createApp(t, ts, "hello", "nginx:latest", ptrInt(8080), nil, nil)
 		appID, _ := created["id"].(string)
 		assert.NotEmpty(t, appID)
 
@@ -312,4 +345,8 @@ func TestWorkerAuth_ProcessNextDeployment(t *testing.T) {
 			assert.Equal(t, tt.wantCode, res.StatusCode)
 		})
 	}
+}
+
+func ptrInt(v int) *int {
+	return &v
 }

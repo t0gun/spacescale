@@ -95,7 +95,7 @@ func (s *AppService) ProcessNextDeployment(ctx context.Context) (domain.Deployme
 
 	// Mark deployment as running with the resolved URL.
 	dep.Status = domain.DeploymentStatusRunning
-	dep.URL = &url
+	dep.URL = url
 	dep.Error = nil
 	dep.UpdatedAt = time.Now().UTC()
 	if err := s.store.UpdateDeployment(ctx, dep); err != nil {

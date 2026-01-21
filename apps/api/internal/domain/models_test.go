@@ -10,14 +10,17 @@ import (
 
 func TestNewAppDefault(t *testing.T) {
 	tests := []struct {
-		label string
-		in    domain.NewAppParams
-		ok    bool
+		label      string
+		in         domain.NewAppParams
+		ok         bool
+		wantExpose bool
 	}{
-		{label: "valid app", in: domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: 8080}, ok: true},
-		{label: "invalid name", in: domain.NewAppParams{Name: "Bad_Name", Image: "nginx:latest", Port: 8080}, ok: false},
-		{label: "empty image", in: domain.NewAppParams{Name: "hello", Image: "", Port: 8080}, ok: false},
-		{label: "invalid port", in: domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: 0}, ok: false},
+		{label: "valid app", in: domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)}, ok: true, wantExpose: true},
+		{label: "valid app no port", in: domain.NewAppParams{Name: "hello", Image: "nginx:latest"}, ok: true, wantExpose: true},
+		{label: "valid app expose false", in: domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080), Expose: ptrBool(false)}, ok: true, wantExpose: false},
+		{label: "invalid name", in: domain.NewAppParams{Name: "Bad_Name", Image: "nginx:latest", Port: ptrInt(8080)}, ok: false},
+		{label: "empty image", in: domain.NewAppParams{Name: "hello", Image: "", Port: ptrInt(8080)}, ok: false},
+		{label: "invalid port", in: domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(0)}, ok: false},
 	}
 
 	for _, tt := range tests {
@@ -28,9 +31,15 @@ func TestNewAppDefault(t *testing.T) {
 				assert.NoError(t, err)
 				assert.NotEmpty(t, app.ID)
 				assert.Equal(t, tt.in.Name, app.Name)
-				assert.Equal(t, tt.in.Port, app.Port)
+				if tt.in.Port == nil {
+					assert.Nil(t, app.Port)
+				} else {
+					assert.NotNil(t, app.Port)
+					assert.Equal(t, *tt.in.Port, *app.Port)
+				}
 				assert.Equal(t, tt.in.Image, app.Image)
 				assert.Equal(t, domain.AppStatusCreated, app.Status)
+				assert.Equal(t, tt.wantExpose, app.Expose)
 			}
 
 			if !tt.ok {
@@ -40,6 +49,14 @@ func TestNewAppDefault(t *testing.T) {
 
 		})
 	}
+}
+
+func ptrBool(v bool) *bool {
+	return &v
+}
+
+func ptrInt(v int) *int {
+	return &v
 }
 
 func TestNewDeployment(t *testing.T) {

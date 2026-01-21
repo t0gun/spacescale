@@ -8,20 +8,24 @@ import (
 
 // createAppReq is the request body for creating an app.
 type createAppReq struct {
-	Name  string `json:"name"`
-	Image string `json:"image"`
-	Port  int    `json:"port"`
+	Name   string            `json:"name"`
+	Image  string            `json:"image"`
+	Port   *int              `json:"port,omitempty"`
+	Expose *bool             `json:"expose,omitempty"`
+	Env    map[string]string `json:"env,omitempty"`
 }
 
 // appResp is the API response shape for an app.
 type appResp struct {
-	ID        string           `json:"id"`
-	Name      string           `json:"name"`
-	Image     string           `json:"image"`
-	Port      int              `json:"port"`
-	Status    domain.AppStatus `json:"status"`
-	CreatedAt time.Time        `json:"createdAt"`
-	UpdatedAt time.Time        `json:"updatedAt"`
+	ID        string            `json:"id"`
+	Name      string            `json:"name"`
+	Image     string            `json:"image"`
+	Port      *int              `json:"port,omitempty"`
+	Expose    bool              `json:"expose"`
+	Env       map[string]string `json:"env,omitempty"`
+	Status    domain.AppStatus  `json:"status"`
+	CreatedAt time.Time         `json:"createdAt"`
+	UpdatedAt time.Time         `json:"updatedAt"`
 }
 
 // toAppResp maps a domain app to an API response shape.
@@ -31,6 +35,8 @@ func toAppResp(a domain.App) appResp {
 		Name:      a.Name,
 		Image:     a.Image,
 		Port:      a.Port,
+		Expose:    a.Expose,
+		Env:       a.Env,
 		Status:    a.Status,
 		CreatedAt: a.CreatedAt,
 		UpdatedAt: a.UpdatedAt,

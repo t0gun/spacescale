@@ -31,9 +31,11 @@ func NewAppServiceWithRuntime(store contracts.Store, rt contracts.Runtime) *AppS
 // CreateAppParams collects the input needed to create a new application.
 // Validation is performed in the domain constructor.
 type CreateAppParams struct {
-	Name  string
-	Image string
-	Port  int
+	Name   string
+	Image  string
+	Port   *int
+	Expose *bool
+	Env    map[string]string
 }
 
 // CreateApp validates input, constructs a domain app, and persists it.
@@ -41,9 +43,11 @@ type CreateAppParams struct {
 func (s *AppService) CreateApp(ctx context.Context, p CreateAppParams) (domain.App, error) {
 	// Build and validate the domain object first to keep rules in one place.
 	app, err := domain.NewApp(domain.NewAppParams{
-		Name:  p.Name,
-		Image: p.Image,
-		Port:  p.Port,
+		Name:   p.Name,
+		Image:  p.Image,
+		Port:   p.Port,
+		Expose: p.Expose,
+		Env:    p.Env,
 	})
 	if err != nil {
 		return domain.App{}, fmt.Errorf("%w: %v", ErrInvalidInput, err)

@@ -71,28 +71,33 @@ func TestValidateImageRef(t *testing.T) {
 func TestValidatePort(t *testing.T) {
 	tests := []struct {
 		label string
-		port  int
+		port  *int
 		ok    bool
 	}{
-		{"typical app port", 8080, true},
-		{"http", 80, true},
-		{"min", 1, true},
-		{"max", 65535, true},
+		{"typical app port", ptrInt(8080), true},
+		{"http", ptrInt(80), true},
+		{"min", ptrInt(1), true},
+		{"max", ptrInt(65535), true},
+		{"nil", nil, true},
 
-		{"zero", 0, false},
-		{"negative", -1, false},
-		{"too high", 65536, false},
+		{"zero", ptrInt(0), false},
+		{"negative", ptrInt(-1), false},
+		{"too high", ptrInt(65536), false},
 	}
 
 	for _, tt := range tests {
-		t.Run(fmt.Sprintf("%s (%d)", tt.label, tt.port), func(t *testing.T) {
+		name := tt.label
+		if tt.port != nil {
+			name = fmt.Sprintf("%s (%d)", tt.label, *tt.port)
+		}
+		t.Run(name, func(t *testing.T) {
 			err := domain.ValidatePort(tt.port)
 
 			if tt.ok {
-				assert.NoError(t, err, "expected ok for %d", tt.port)
+				assert.NoError(t, err)
 			}
 			if !tt.ok {
-				assert.Error(t, err, "expected error for %d", tt.port)
+				assert.Error(t, err)
 			}
 
 		})

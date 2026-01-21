@@ -23,6 +23,10 @@ func New(baseDomain string) *Runtime {
 }
 
 // Deploy returns a synthetic URL for the app without doing real work.
-func (r *Runtime) Deploy(ctx context.Context, app domain.App) (string, error) {
-	return fmt.Sprintf("%s://%s.%s", r.Scheme, app.Name, r.BaseDomain), nil
+func (r *Runtime) Deploy(ctx context.Context, app domain.App) (*string, error) {
+	if !app.Expose {
+		return nil, nil
+	}
+	url := fmt.Sprintf("%s://%s.%s", r.Scheme, app.Name, r.BaseDomain)
+	return &url, nil
 }

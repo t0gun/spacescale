@@ -15,9 +15,11 @@ func (s *Server) handleCreateApp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app, err := s.svc.CreateApp(r.Context(), service.CreateAppParams{
-		Name:  req.Name,
-		Image: req.Image,
-		Port:  req.Port,
+		Name:   req.Name,
+		Image:  req.Image,
+		Port:   req.Port,
+		Expose: req.Expose,
+		Env:    req.Env,
 	})
 	if err != nil {
 		status, msg := mapServiceErr(err)

@@ -35,8 +35,11 @@ func ValidateImageRef(image string) error {
 }
 
 // ValidatePort ensures the port is within the valid TCP range.
-func ValidatePort(port int) error {
-	if port < 1 || port > 65535 {
+func ValidatePort(port *int) error {
+	if port == nil {
+		return nil
+	}
+	if *port < 1 || *port > 65535 {
 		return ErrInvalidPort
 	}
 	return nil

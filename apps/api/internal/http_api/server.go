@@ -34,6 +34,12 @@ func (s *Server) Router() http.Handler {
 		w.WriteHeader(http.StatusOK)
 	})
 
+	// API docs (served from ./docs)
+	r.Get("/docs", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/docs/index.html", http.StatusMovedPermanently)
+	})
+	r.Mount("/docs", http.StripPrefix("/docs", http.FileServer(http.Dir("docs"))))
+
 	r.Route("/v0", func(r chi.Router) {
 		r.Post("/apps", s.handleCreateApp)
 		r.Post("/apps/{appID}/deploy", s.handleDeployApp)

@@ -33,7 +33,9 @@ type App struct {
 	ID        string
 	Name      string
 	Image     string
-	Port      int
+	Port      *int
+	Expose    bool
+	Env       map[string]string
 	Status    AppStatus
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -41,9 +43,11 @@ type App struct {
 
 // NewAppParams holds the input used to construct an App.
 type NewAppParams struct {
-	Name  string
-	Image string
-	Port  int
+	Name   string
+	Image  string
+	Port   *int
+	Expose *bool // nil defaults to true
+	Env    map[string]string
 }
 
 // NewApp validates input and returns a new App with default status and timestamps.
@@ -55,8 +59,21 @@ func NewApp(p NewAppParams) (App, error) {
 	if err := ValidateImageRef(p.Image); err != nil {
 		return App{}, err
 	}
+
+	exposeVal := true
+	if p.Expose != nil {
+		exposeVal = *p.Expose
+	}
 	if err := ValidatePort(p.Port); err != nil {
 		return App{}, err
+	}
+
+	var envCopy map[string]string
+	if p.Env != nil {
+		envCopy = make(map[string]string, len(p.Env))
+		for k, v := range p.Env {
+			envCopy[k] = v
+		}
 	}
 
 	now := time.Now().UTC()
@@ -65,6 +82,8 @@ func NewApp(p NewAppParams) (App, error) {
 		Name:      p.Name,
 		Image:     p.Image,
 		Port:      p.Port,
+		Expose:    exposeVal,
+		Env:       envCopy,
 		Status:    AppStatusCreated,
 		CreatedAt: now,
 		UpdatedAt: now,

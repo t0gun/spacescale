@@ -1,16 +1,26 @@
-.PHONY: build test test-race coverage clean run
+.PHONY: build test test-race test-docker coverage clean run
+
+ADDR ?= :8080
+WORKER_TOKEN ?=
+BASE_DOMAIN ?= example.com
+TRAEFIK_NET ?= traefik
+TRAEFIK_ENTRYPOINT ?= web
+ENABLE_TLS ?= 0
 
 build:
 	go build -v ./...
 
 run:
-	go run ./cmd/api
+	ADDR=$(ADDR) WORKER_TOKEN=$(WORKER_TOKEN) BASE_DOMAIN=$(BASE_DOMAIN) TRAEFIK_NET=$(TRAEFIK_NET) TRAEFIK_ENTRYPOINT=$(TRAEFIK_ENTRYPOINT) ENABLE_TLS=$(ENABLE_TLS) go run ./cmd/api
 
 test:
 	go test ./... -cover
 
 test-race:
 	go test ./... -race
+
+test-docker:
+	RUN_DOCKER_TESTS=1 go test -v ./internal/adapters/runtime/docker
 
 coverage:
 	go test ./... -coverprofile=coverage.out

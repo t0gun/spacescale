@@ -15,7 +15,7 @@ func TestMemoryStore_CreateApp_OK(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
 
-	app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: 8080})
+	app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)})
 	assert.NoError(t, err)
 
 	err = st.CreateApp(ctx, app)
@@ -26,9 +26,9 @@ func TestMemoryStore_CreateApp_DuplicateName_Conflict(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
 
-	app1, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: 8080})
+	app1, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)})
 	assert.NoError(t, err)
-	app2, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: 8080})
+	app2, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)})
 	assert.NoError(t, err)
 
 	assert.NoError(t, st.CreateApp(ctx, app1))
@@ -60,9 +60,9 @@ func TestMemoryStore_ListApps_Count(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
 
-	a, err := domain.NewApp(domain.NewAppParams{Name: "a", Image: "nginx:latest", Port: 8080})
+	a, err := domain.NewApp(domain.NewAppParams{Name: "a", Image: "nginx:latest", Port: ptrInt(8080)})
 	assert.NoError(t, err)
-	b, err := domain.NewApp(domain.NewAppParams{Name: "b", Image: "nginx:latest", Port: 8080})
+	b, err := domain.NewApp(domain.NewAppParams{Name: "b", Image: "nginx:latest", Port: ptrInt(8080)})
 	assert.NoError(t, err)
 
 	assert.NoError(t, st.CreateApp(ctx, a))
@@ -88,7 +88,7 @@ func TestMemoryStore_CreateDeployment_And_GetByID_OK(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
 
-	app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: 8080})
+	app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)})
 	assert.NoError(t, err)
 	assert.NoError(t, st.CreateApp(ctx, app))
 
@@ -106,7 +106,7 @@ func TestMemoryStore_ListDeploymentsByAppID_OrderAndReflectsUpdates(t *testing.T
 	ctx := context.Background()
 	st := store.NewMemoryStore()
 
-	app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: 8080})
+	app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)})
 	require.NoError(t, err)
 	require.NoError(t, st.CreateApp(ctx, app))
 
@@ -144,7 +144,7 @@ func TestMemoryStore_TakeNextQueuedDeployment_FIFO(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
 
-	app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: 8080})
+	app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)})
 	require.NoError(t, err)
 	require.NoError(t, st.CreateApp(ctx, app))
 
@@ -169,7 +169,7 @@ func TestMemoryStore_TakeNextQueuedDeployment_SkipsNonQueued(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
 
-	app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: 8080})
+	app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)})
 	require.NoError(t, err)
 	require.NoError(t, st.CreateApp(ctx, app))
 
@@ -198,4 +198,8 @@ func TestMemoryStore_UpdateDeployment_NotFound(t *testing.T) {
 	err := st.UpdateDeployment(ctx, dep)
 	assert.Error(t, err)
 	assert.ErrorIs(t, err, contracts.ErrNotFound)
+}
+
+func ptrInt(v int) *int {
+	return &v
 }
