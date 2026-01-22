@@ -1,3 +1,9 @@
+# Openapi specification for the paas api
+# This document defines request and response shapes
+# Optional port expose and env fields are documented
+# Deployment url may be null when exposure is disabled
+# Keep this file aligned with handlers and models
+
 openapi: 3.0.3
 info:
   title: SpaceScale API

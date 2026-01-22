@@ -1,3 +1,9 @@
+// Tests for app service create and get behavior
+// Tests include optional port expose and env handling
+// Tests verify service error mapping
+// Tests cover duplicate name conflicts
+// These tests keep service behavior stable
+
 package service_test
 
 import (
@@ -9,6 +15,8 @@ import (
 	"github.com/t0gun/paas/internal/service"
 )
 
+// This function handles test create app
+// It supports test create app behavior
 func TestCreateApp(t *testing.T) {
 	tests := []struct {
 		label  string
@@ -73,6 +81,8 @@ func TestCreateApp(t *testing.T) {
 
 }
 
+// This function handles test create app duplicate name
+// It supports test create app duplicate name behavior
 func TestCreateApp_DuplicateName(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -94,6 +104,8 @@ func TestCreateApp_DuplicateName(t *testing.T) {
 	assert.ErrorIs(t, err, service.ErrConflict)
 }
 
+// This function handles test get app by id
+// It supports test get app by id behavior
 func TestGetAppByID(t *testing.T) {
 	t.Run("invalid input: empty id", func(t *testing.T) {
 		ctx := context.Background()
@@ -139,10 +151,14 @@ func TestGetAppByID(t *testing.T) {
 	})
 }
 
+// This function handles ptr bool
+// It supports ptr bool behavior
 func ptrBool(v bool) *bool {
 	return &v
 }
 
+// This function handles ptr int
+// It supports ptr int behavior
 func ptrInt(v int) *int {
 	return &v
 }

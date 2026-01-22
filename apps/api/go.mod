@@ -1,4 +1,4 @@
-module github.com/t0gun/paas
+module github.com/t0gun/spacescale
 
 go 1.25.5
 

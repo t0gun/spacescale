@@ -1,3 +1,9 @@
+// Tests for http api routes and responses
+// Tests exercise app creation and deployment flows
+// Tests verify status codes and response fields
+// Tests cover exposure disabled behavior
+// These tests guard handler regressions
+
 package http_api_test
 
 import (
@@ -15,6 +21,8 @@ import (
 	"github.com/t0gun/paas/internal/service"
 )
 
+// This function handles new test server
+// It supports new test server behavior
 func newTestServer(t *testing.T, workerToken string) (*httptest.Server, *store.MemoryStore) {
 	t.Helper()
 
@@ -28,6 +36,8 @@ func newTestServer(t *testing.T, workerToken string) (*httptest.Server, *store.M
 	return ts, st
 }
 
+// This function handles new request
+// It supports new request behavior
 func newRequest(t *testing.T, method, url string, body []byte) *http.Request {
 	t.Helper()
 	var bodyReader io.Reader
@@ -41,6 +51,8 @@ func newRequest(t *testing.T, method, url string, body []byte) *http.Request {
 	return req
 }
 
+// This function handles new jsonrequest
+// It supports new jsonrequest behavior
 func newJSONRequest(t *testing.T, method, url string, body []byte) *http.Request {
 	t.Helper()
 	req := newRequest(t, method, url, body)
@@ -48,6 +60,8 @@ func newJSONRequest(t *testing.T, method, url string, body []byte) *http.Request
 	return req
 }
 
+// This function handles do request
+// It supports do request behavior
 func doRequest(t *testing.T, req *http.Request) *http.Response {
 	t.Helper()
 	res, err := http.DefaultClient.Do(req)
@@ -60,6 +74,8 @@ func doRequest(t *testing.T, req *http.Request) *http.Response {
 	return res
 }
 
+// This function handles create app
+// It supports create app behavior
 func createApp(t *testing.T, ts *httptest.Server, name, image string, port *int, expose *bool, env map[string]string) map[string]any {
 	t.Helper()
 	body := map[string]any{"name": name, "image": image}
@@ -84,6 +100,8 @@ func createApp(t *testing.T, ts *httptest.Server, name, image string, port *int,
 	return created
 }
 
+// This function handles test healthz
+// It supports test healthz behavior
 func TestHealthz(t *testing.T) {
 	ts, _ := newTestServer(t, "")
 	defer ts.Close()
@@ -92,6 +110,8 @@ func TestHealthz(t *testing.T) {
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 }
 
+// This function handles test create app
+// It supports test create app behavior
 func TestCreateApp(t *testing.T) {
 	t.Run("valid - 201", func(t *testing.T) {
 		ts, _ := newTestServer(t, "")
@@ -128,6 +148,8 @@ func TestCreateApp(t *testing.T) {
 
 }
 
+// This function handles test create app conflict
+// It supports test create app conflict behavior
 func TestCreateAppConflict(t *testing.T) {
 	ts, _ := newTestServer(t, "")
 	defer ts.Close()
@@ -135,7 +157,7 @@ func TestCreateAppConflict(t *testing.T) {
 	// create first
 	createApp(t, ts, "hello", "nginx:latest", ptrInt(8080), nil, nil)
 
-	// create again with same name => 409
+	// create again with same name
 	body := `{"name":"hello","image":"nginx:latest","port":8080}`
 	req2 := newJSONRequest(t, http.MethodPost, ts.URL+"/v0/apps", []byte(body))
 	res2 := doRequest(t, req2)
@@ -143,6 +165,8 @@ func TestCreateAppConflict(t *testing.T) {
 	assert.Equal(t, http.StatusConflict, res2.StatusCode)
 }
 
+// This function handles test deploy and process and list deployments
+// It supports test deploy and process and list deployments behavior
 func TestDeployAndProcessAndListDeployments(t *testing.T) {
 	ts, _ := newTestServer(t, "")
 	defer ts.Close()
@@ -152,12 +176,12 @@ func TestDeployAndProcessAndListDeployments(t *testing.T) {
 	appID, _ := created["id"].(string)
 	assert.NotEmpty(t, appID)
 
-	// deploy => 202
+	// deploy
 	deployReq := newRequest(t, http.MethodPost, ts.URL+"/v0/apps/"+appID+"/deploy", nil)
 	deployRes := doRequest(t, deployReq)
 	assert.Equal(t, http.StatusAccepted, deployRes.StatusCode)
 
-	// process => 200
+	// process
 	processReq := newRequest(t, http.MethodPost, ts.URL+"/v0/deployments/next:process", nil)
 	processRes := doRequest(t, processReq)
 	assert.Equal(t, http.StatusOK, processRes.StatusCode)
@@ -168,7 +192,7 @@ func TestDeployAndProcessAndListDeployments(t *testing.T) {
 	assert.Equal(t, "RUNNING", dep["status"])
 	assert.NotEmpty(t, dep["url"])
 
-	// list => 200 and includes deployment
+	// list and includes deployment
 	listReq := newRequest(t, http.MethodGet, ts.URL+"/v0/apps/"+appID+"/deployments", nil)
 	listRes := doRequest(t, listReq)
 
@@ -180,6 +204,8 @@ func TestDeployAndProcessAndListDeployments(t *testing.T) {
 	assert.Equal(t, "RUNNING", deps[0]["status"])
 }
 
+// This function handles test deploy no expose
+// It supports test deploy no expose behavior
 func TestDeployNoExpose(t *testing.T) {
 	ts, _ := newTestServer(t, "")
 	defer ts.Close()
@@ -204,6 +230,8 @@ func TestDeployNoExpose(t *testing.T) {
 	assert.False(t, ok)
 }
 
+// This function handles test deploy missing app
+// It supports test deploy missing app behavior
 func TestDeployMissingApp(t *testing.T) {
 	ts, _ := newTestServer(t, "")
 	defer ts.Close()
@@ -214,6 +242,8 @@ func TestDeployMissingApp(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, res.StatusCode)
 }
 
+// This function handles test list deployments missing app
+// It supports test list deployments missing app behavior
 func TestListDeploymentsMissingApp(t *testing.T) {
 	ts, _ := newTestServer(t, "")
 	defer ts.Close()
@@ -224,6 +254,8 @@ func TestListDeploymentsMissingApp(t *testing.T) {
 	assert.Equal(t, http.StatusNotFound, res.StatusCode)
 }
 
+// This function handles test process no work
+// It supports test process no work behavior
 func TestProcessNoWork(t *testing.T) {
 	ts, _ := newTestServer(t, "")
 	defer ts.Close()
@@ -234,6 +266,8 @@ func TestProcessNoWork(t *testing.T) {
 	assert.Equal(t, http.StatusNoContent, res.StatusCode)
 }
 
+// This function handles test process no runtime
+// It supports test process no runtime behavior
 func TestProcessNoRuntime(t *testing.T) {
 	st := store.NewMemoryStore()
 	svc := service.NewAppService(st)
@@ -251,6 +285,8 @@ func TestProcessNoRuntime(t *testing.T) {
 	assert.Equal(t, "runtime not configured", got["error"])
 }
 
+// This function handles test list apps
+// It supports test list apps behavior
 func TestListApps(t *testing.T) {
 	t.Run("empty list", func(t *testing.T) {
 		ts, _ := newTestServer(t, "")
@@ -284,6 +320,8 @@ func TestListApps(t *testing.T) {
 	})
 }
 
+// This function handles test get app by id
+// It supports test get app by id behavior
 func TestGetAppByID(t *testing.T) {
 	t.Run("ok - 200", func(t *testing.T) {
 		ts, _ := newTestServer(t, "")
@@ -318,6 +356,8 @@ func TestGetAppByID(t *testing.T) {
 	})
 }
 
+// This function handles test worker auth process next deployment
+// It supports test worker auth process next deployment behavior
 func TestWorkerAuth_ProcessNextDeployment(t *testing.T) {
 	tests := []struct {
 		label       string
@@ -347,6 +387,8 @@ func TestWorkerAuth_ProcessNextDeployment(t *testing.T) {
 	}
 }
 
+// This function handles ptr int
+// It supports ptr int behavior
 func ptrInt(v int) *int {
 	return &v
 }

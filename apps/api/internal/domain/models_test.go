@@ -1,3 +1,9 @@
+// Tests for domain app creation and defaults
+// Tests cover optional port and expose behavior
+// Tests confirm status values and timestamps
+// Tests verify deployment creation data
+// These tests guard domain rules
+
 package domain_test
 
 import (
@@ -8,6 +14,8 @@ import (
 	"github.com/t0gun/paas/internal/domain"
 )
 
+// This function handles test new app default
+// It supports test new app default behavior
 func TestNewAppDefault(t *testing.T) {
 	tests := []struct {
 		label      string
@@ -51,14 +59,20 @@ func TestNewAppDefault(t *testing.T) {
 	}
 }
 
+// This function handles ptr bool
+// It supports ptr bool behavior
 func ptrBool(v bool) *bool {
 	return &v
 }
 
+// This function handles ptr int
+// It supports ptr int behavior
 func ptrInt(v int) *int {
 	return &v
 }
 
+// This function handles test new deployment
+// It supports test new deployment behavior
 func TestNewDeployment(t *testing.T) {
 	tests := []struct {
 		label string

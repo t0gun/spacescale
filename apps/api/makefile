@@ -1,3 +1,9 @@
+# Build and test targets for the paas api
+# Variables allow runtime configuration for run
+# Test target runs unit tests
+# Test docker target runs docker runtime tests
+# Coverage target produces a report
+
 .PHONY: build test test-race test-docker coverage clean run
 
 ADDR ?= :8080

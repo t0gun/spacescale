@@ -1,3 +1,9 @@
+// Fake runtime for tests and local use
+// It builds a predictable url for an app
+// It respects exposure and can return nil
+// It avoids docker dependencies in tests
+// It keeps runtime behavior simple and stable
+
 package fake
 
 import (
@@ -8,13 +14,14 @@ import (
 	"github.com/t0gun/paas/internal/domain"
 )
 
-// Runtime is a fake runtime that returns a predictable URL.
+// Runtime is a fake runtime that returns a predictable URL
 type Runtime struct {
 	BaseDomain string
 	Scheme     string // https or http
 }
 
-// New constructs a fake runtime with a base domain.
+// This function handles new
+// It supports new behavior
 func New(baseDomain string) *Runtime {
 	return &Runtime{
 		BaseDomain: strings.TrimSpace(baseDomain),
@@ -22,7 +29,8 @@ func New(baseDomain string) *Runtime {
 	}
 }
 
-// Deploy returns a synthetic URL for the app without doing real work.
+// This function handles deploy
+// It supports deploy behavior
 func (r *Runtime) Deploy(ctx context.Context, app domain.App) (*string, error) {
 	if !app.Expose {
 		return nil, nil

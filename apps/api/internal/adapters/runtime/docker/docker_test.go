@@ -1,3 +1,9 @@
+// Integration tests for docker runtime deploy
+// Tests require docker and use an env flag
+// The test deploys a sample image
+// It checks the returned url format
+// It verifies runtime behavior end to end
+
 package docker_test
 
 import (
@@ -11,6 +17,8 @@ import (
 	"github.com/t0gun/paas/internal/domain"
 )
 
+// This function handles test docker runtime deploy
+// It supports test docker runtime deploy behavior
 func TestDockerRuntime_Deploy(t *testing.T) {
 	if os.Getenv("RUN_DOCKER_TESTS") != "1" {
 		t.Skip("set RUN_DOCKER_TESTS=1 to run docker integration tests")
@@ -43,6 +51,8 @@ func TestDockerRuntime_Deploy(t *testing.T) {
 	assert.Equal(t, "http://hello.localtest.me", *url)
 }
 
+// This function handles ptr int
+// It supports ptr int behavior
 func ptrInt(v int) *int {
 	return &v
 }

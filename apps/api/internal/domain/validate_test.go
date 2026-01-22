@@ -1,3 +1,9 @@
+// Tests for app name image and port validation
+// Tests include valid and invalid examples
+// Port tests include nil and range checks
+// Validation errors are expected for bad inputs
+// These tests guard validation rules
+
 package domain_test
 
 import (
@@ -8,6 +14,8 @@ import (
 	"github.com/t0gun/paas/internal/domain"
 )
 
+// This function handles test validate app name
+// It supports test validate app name behavior
 func TestValidateAppName(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -40,6 +48,8 @@ func TestValidateAppName(t *testing.T) {
 	}
 }
 
+// This function handles test validate image ref
+// It supports test validate image ref behavior
 func TestValidateImageRef(t *testing.T) {
 	tests := []struct {
 		label string
@@ -68,6 +78,8 @@ func TestValidateImageRef(t *testing.T) {
 	}
 }
 
+// This function handles test validate port
+// It supports test validate port behavior
 func TestValidatePort(t *testing.T) {
 	tests := []struct {
 		label string

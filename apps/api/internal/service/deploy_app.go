@@ -1,3 +1,9 @@
+// Service logic for deployments and processing
+// This file validates input and loads app data
+// It queues deployments and updates status fields
+// It calls the runtime to deploy apps
+// It records url or error results on deployments
+
 package service
 
 import (
@@ -10,24 +16,24 @@ import (
 	"github.com/t0gun/paas/internal/domain"
 )
 
-// DeployAppParams contains the input needed to request a deployment.
+// DeployAppParams contains the input needed to request a deployment
 type DeployAppParams struct {
 	AppID string
 }
 
-// ListDeploymentsParams identifies which app to list deployments for.
+// ListDeploymentsParams identifies which app to list deployments for
 type ListDeploymentsParams struct {
 	AppID string
 }
 
-// DeployApp validates the request, ensures the app exists, and enqueues a deployment.
-// The returned deployment starts in a queued state for processing by a worker.
+// This function handles deploy app
+// It supports deploy app behavior
 func (s *AppService) DeployApp(ctx context.Context, p DeployAppParams) (domain.Deployment, error) {
 	if p.AppID == "" {
 		return domain.Deployment{}, fmt.Errorf("%w: app id is required", ErrInvalidInput)
 	}
 
-	// Ensure the app exists before creating a deployment record.
+	// Ensure the app exists before creating a deployment record
 	_, err := s.store.GetAppByID(ctx, p.AppID)
 	if err != nil {
 		if errors.Is(err, contracts.ErrNotFound) {
@@ -36,11 +42,11 @@ func (s *AppService) DeployApp(ctx context.Context, p DeployAppParams) (domain.D
 		return domain.Deployment{}, err
 	}
 
-	// Create a queued deployment record.
+	// Create a queued deployment record
 	dep := domain.NewDeployment(p.AppID)
 	if err := s.store.CreateDeployment(ctx, dep); err != nil {
 		if errors.Is(err, contracts.ErrNotFound) {
-			// Store enforces that the app must exist.
+			// Store enforces that the app must exist
 			return domain.Deployment{}, ErrNotFound
 		}
 		return domain.Deployment{}, ErrNotFound
@@ -48,14 +54,14 @@ func (s *AppService) DeployApp(ctx context.Context, p DeployAppParams) (domain.D
 	return dep, nil
 }
 
-// ProcessNextDeployment takes the next queued deployment and runs the runtime.
-// It updates status transitions and records errors on the deployment when needed.
+// This function handles process next deployment
+// It supports process next deployment behavior
 func (s *AppService) ProcessNextDeployment(ctx context.Context) (domain.Deployment, error) {
 	if s.runtime == nil {
 		return domain.Deployment{}, ErrNoRuntime
 	}
 
-	// Grab the next queued deployment in FIFO order.
+	// Grab the next queued deployment in FIFO order
 	dep, err := s.store.TakeNextQueuedDeployment(ctx)
 	if err != nil {
 		if errors.Is(err, contracts.ErrNotFound) {
@@ -64,14 +70,14 @@ func (s *AppService) ProcessNextDeployment(ctx context.Context) (domain.Deployme
 		return domain.Deployment{}, err
 	}
 
-	// Mark deployment as building before interacting with the runtime.
+	// Mark deployment as building before interacting with the runtime
 	dep.Status = domain.DeploymentStatusBuilding
 	dep.UpdatedAt = time.Now()
 	if err := s.store.UpdateDeployment(ctx, dep); err != nil {
 		return domain.Deployment{}, err
 	}
 
-	// Load app data needed for the runtime deployment.
+	// Load app data needed for the runtime deployment
 	app, err := s.store.GetAppByID(ctx, dep.AppID)
 	if err != nil {
 		msg := err.Error()
@@ -82,7 +88,7 @@ func (s *AppService) ProcessNextDeployment(ctx context.Context) (domain.Deployme
 		return dep, fmt.Errorf("runtime deploy failed: %w", err)
 	}
 
-	// Run the runtime deploy and capture a URL or an error.
+	// Run the runtime deploy and capture a URL or an error
 	url, err := s.runtime.Deploy(ctx, app)
 	if err != nil {
 		msg := err.Error()
@@ -93,7 +99,7 @@ func (s *AppService) ProcessNextDeployment(ctx context.Context) (domain.Deployme
 		return dep, fmt.Errorf("runtime deploy failed: %w", err)
 	}
 
-	// Mark deployment as running with the resolved URL.
+	// Mark deployment as running with the resolved URL
 	dep.Status = domain.DeploymentStatusRunning
 	dep.URL = url
 	dep.Error = nil
@@ -106,14 +112,14 @@ func (s *AppService) ProcessNextDeployment(ctx context.Context) (domain.Deployme
 
 }
 
-// ListDeployments validates input, ensures the app exists, and returns its deployments.
-// This avoids returning an empty list for a missing app.
+// This function handles list deployments
+// It supports list deployments behavior
 func (s *AppService) ListDeployments(ctx context.Context, p ListDeploymentsParams) ([]domain.Deployment, error) {
 	if p.AppID == "" {
 		return nil, ErrInvalidInput
 	}
 
-	// Ensure the app exists so missing apps return a not found error.
+	// Ensure the app exists so missing apps return a not found error
 	if _, err := s.store.GetAppByID(ctx, p.AppID); err != nil {
 		if errors.Is(err, contracts.ErrNotFound) {
 			return nil, ErrNotFound

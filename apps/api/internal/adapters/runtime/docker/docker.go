@@ -1,3 +1,10 @@
+// Docker runtime implementation for deploying apps
+// This file pulls images and creates containers
+// Ports are resolved from app input or image metadata
+// Labels are applied when exposure is enabled
+// Env values are passed into container config
+// A url is returned when the app is exposed
+
 package docker
 
 import (
@@ -16,7 +23,7 @@ import (
 	"github.com/t0gun/paas/internal/domain"
 )
 
-// Runtime deploys apps using the local Docker engine.
+// Runtime deploys apps using the local Docker engine
 type Runtime struct {
 	cli           *client.Client
 	advertiseHost string
@@ -29,31 +36,27 @@ type Runtime struct {
 
 const errPortRequiredMsg = "port required or image must expose exactly one port"
 
-// Option customizes runtime settings during construction.
+// Option customizes runtime settings during construction
 type Option func(*Runtime)
 
-// WithAdvertiseHost sets the hostname or IP that will be used in the returned URL.
-// This is useful when the Docker host is not the same as the request origin.
-// If not set, a local address is used by default.
+// WithAdvertiseHost This function handles with advertise host
+// It supports with advertise host behavior
 func WithAdvertiseHost(host string) Option { return func(r *Runtime) { r.advertiseHost = host } }
 
-// WithNamePrefix sets the container name prefix used for created containers.
-// This makes it easy to find containers that belong to this runtime.
-// If not set, a simple default prefix is used.
+// WithNamePrefix This function handles with name prefix
+// It supports with name prefix behavior
 func WithNamePrefix(prefix string) Option { return func(r *Runtime) { r.namePrefix = prefix } }
 
-// WithTimeout sets a maximum duration for runtime operations like pull and start.
-// The timeout applies to the full deploy sequence for a single app.
-// If not set, a reasonable default is used.
+// WithTimeout This function handles with timeout
+// It supports with timeout behavior
 func WithTimeout(d time.Duration) Option { return func(r *Runtime) { r.timeout = d } }
 
-// WithEdge configures edge routing settings used for label-based routing.
-// This is optional and only needed when the runtime should attach edge labels.
+// WithEdge This function handles with edge
+// It supports with edge behavior
 func WithEdge(cfg EdgeConfig) Option { return func(r *Runtime) { r.edge = cfg } }
 
-// New creates a Docker runtime client and applies any optional configuration.
-// The runtime starts with safe defaults and each option can override one part.
-// This keeps the call site clean while still allowing customization.
+// New This function handles new
+// It supports new behavior
 func New(opts ...Option) (*Runtime, error) {
 	cli, err := client.New(
 		client.FromEnv,
@@ -81,8 +84,8 @@ func New(opts ...Option) (*Runtime, error) {
 	return r, nil
 }
 
-// Deploy pulls the image, creates a container, starts it, and returns a URL.
-// It validates the app input and uses a timeout to avoid hanging operations.
+// This function handles deploy
+// It supports deploy behavior
 func (r *Runtime) Deploy(ctx context.Context, app domain.App) (*string, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.timeout)
 	defer cancel()
@@ -98,7 +101,7 @@ func (r *Runtime) Deploy(ctx context.Context, app domain.App) (*string, error) {
 			return nil, fmt.Errorf("docker runtime: empty traefik network")
 		}
 		if strings.TrimSpace(r.edge.Scheme) == "" {
-			// this is actually traefik entrypoint name ("web"/"websecure")
+			// this is actually traefik entrypoint name web websecure
 			r.edge.Scheme = "web"
 		}
 	}
@@ -136,7 +139,7 @@ func (r *Runtime) Deploy(ctx context.Context, app domain.App) (*string, error) {
 		Env:    envToList(app.Env),
 	}
 	if port != nil {
-		// Expose port internally (for docs/metadata; traefik routes to container port)
+		// Expose port internally for docs metadata traefik routes to container port
 		cPort, err := network.ParsePort(fmt.Sprintf("%d/tcp", *port))
 		if err != nil {
 			return nil, fmt.Errorf("docker runtime: parse port: %w", err)
@@ -179,9 +182,8 @@ func (r *Runtime) Deploy(ctx context.Context, app domain.App) (*string, error) {
 	return &url, nil
 }
 
-// pull downloads the image if it is not present on the host.
-// The response stream must be fully read so the pull can finish cleanly.
-// Errors are returned directly to the caller for context handling.
+// This function handles pull
+// It supports pull behavior
 func (r *Runtime) pull(ctx context.Context, ref string) error {
 	rc, err := r.cli.ImagePull(ctx, ref, client.ImagePullOptions{})
 	if err != nil {
@@ -192,9 +194,8 @@ func (r *Runtime) pull(ctx context.Context, ref string) error {
 	return nil
 }
 
-// removeIfExists deletes an existing container by name so deploys can be repeated.
-// Not found errors are treated as a no op so the deploy can continue.
-// Any other error is returned to the caller.
+// This function handles remove if exists
+// It supports remove if exists behavior
 func (r *Runtime) removeIfExists(ctx context.Context, name string) error {
 	_, err := r.cli.ContainerRemove(ctx, name, client.ContainerRemoveOptions{Force: true})
 	if err == nil {
@@ -207,6 +208,8 @@ func (r *Runtime) removeIfExists(ctx context.Context, name string) error {
 	return err
 }
 
+// This function handles resolve port
+// It supports resolve port behavior
 func (r *Runtime) resolvePort(ctx context.Context, app domain.App) (*int, error) {
 	if app.Port != nil {
 		if *app.Port < 1 || *app.Port > 65535 {
@@ -224,6 +227,8 @@ func (r *Runtime) resolvePort(ctx context.Context, app domain.App) (*int, error)
 	return &port, nil
 }
 
+// This function handles port from image
+// It supports port from image behavior
 func (r *Runtime) portFromImage(ctx context.Context, ref string) (int, error) {
 	inspect, err := r.cli.ImageInspect(ctx, ref)
 	if err != nil {
@@ -243,6 +248,8 @@ func (r *Runtime) portFromImage(ctx context.Context, ref string) (int, error) {
 	return port, nil
 }
 
+// This function handles exposed ports from inspect
+// It supports exposed ports from inspect behavior
 func exposedPortsFromInspect(inspect image.InspectResponse) []string {
 	if inspect.Config == nil || len(inspect.Config.ExposedPorts) == 0 {
 		return nil
@@ -255,6 +262,8 @@ func exposedPortsFromInspect(inspect image.InspectResponse) []string {
 	return ports
 }
 
+// This function handles parse exposed port
+// It supports parse exposed port behavior
 func parseExposedPort(spec string) (int, error) {
 	spec = strings.TrimSpace(spec)
 	if spec == "" {
@@ -266,6 +275,8 @@ func parseExposedPort(spec string) (int, error) {
 	return strconv.Atoi(spec)
 }
 
+// This function handles env to list
+// It supports env to list behavior
 func envToList(env map[string]string) []string {
 	if len(env) == 0 {
 		return nil
@@ -283,9 +294,8 @@ func envToList(env map[string]string) []string {
 	return out
 }
 
-// hostPort inspects the container to find which host port was mapped.
-// Docker assigns a random port when PublishAllPorts is enabled.
-// The result is used to build the external URL for the deployment.
+// This function handles host port
+// It supports host port behavior
 func (r *Runtime) hostPort(ctx context.Context, containerID string, cPort network.Port) (string, error) {
 	ins, err := r.cli.ContainerInspect(ctx, containerID, client.ContainerInspectOptions{})
 	if err != nil {

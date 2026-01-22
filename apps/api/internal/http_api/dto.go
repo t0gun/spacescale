@@ -1,3 +1,9 @@
+// Http api request and response shapes
+// Types map domain models to json payloads
+// Optional port expose and env fields are supported
+// Deployment responses include url and error fields
+// These shapes keep api payloads consistent
+
 package http_api
 
 import (
@@ -6,7 +12,7 @@ import (
 	"github.com/t0gun/paas/internal/domain"
 )
 
-// createAppReq is the request body for creating an app.
+// createAppReq is the request body for creating an app
 type createAppReq struct {
 	Name   string            `json:"name"`
 	Image  string            `json:"image"`
@@ -15,7 +21,7 @@ type createAppReq struct {
 	Env    map[string]string `json:"env,omitempty"`
 }
 
-// appResp is the API response shape for an app.
+// appResp is the API response shape for an app
 type appResp struct {
 	ID        string            `json:"id"`
 	Name      string            `json:"name"`
@@ -28,7 +34,8 @@ type appResp struct {
 	UpdatedAt time.Time         `json:"updatedAt"`
 }
 
-// toAppResp maps a domain app to an API response shape.
+// This function handles to app resp
+// It supports to app resp behavior
 func toAppResp(a domain.App) appResp {
 	return appResp{
 		ID:        a.ID,
@@ -43,7 +50,7 @@ func toAppResp(a domain.App) appResp {
 	}
 }
 
-// deploymentResp is the API response shape for a deployment.
+// deploymentResp is the API response shape for a deployment
 type deploymentResp struct {
 	ID        string                  `json:"id"`
 	AppID     string                  `json:"appId"`
@@ -54,7 +61,8 @@ type deploymentResp struct {
 	UpdatedAt time.Time               `json:"updatedAt"`
 }
 
-// toDeploymentResp maps a domain deployment to an API response shape.
+// This function handles to deployment resp
+// It supports to deployment resp behavior
 func toDeploymentResp(d domain.Deployment) deploymentResp {
 	return deploymentResp{
 		ID:        d.ID,

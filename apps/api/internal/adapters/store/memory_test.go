@@ -1,3 +1,9 @@
+// Tests for in memory store behavior
+// Tests include create list and fetch for apps
+// Tests cover deployment queue and update flows
+// Tests verify not found and conflict errors
+// These tests ensure store data integrity
+
 package store_test
 
 import (
@@ -11,6 +17,8 @@ import (
 	"github.com/t0gun/paas/internal/domain"
 )
 
+// This function handles test memory store create app ok
+// It supports test memory store create app ok behavior
 func TestMemoryStore_CreateApp_OK(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -22,6 +30,8 @@ func TestMemoryStore_CreateApp_OK(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+// This function handles test memory store create app duplicate name conflict
+// It supports test memory store create app duplicate name conflict behavior
 func TestMemoryStore_CreateApp_DuplicateName_Conflict(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -38,6 +48,8 @@ func TestMemoryStore_CreateApp_DuplicateName_Conflict(t *testing.T) {
 	assert.ErrorIs(t, err, contracts.ErrConflict)
 }
 
+// This function handles test memory store get app by id not found
+// It supports test memory store get app by id not found behavior
 func TestMemoryStore_GetAppByID_NotFound(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -47,6 +59,8 @@ func TestMemoryStore_GetAppByID_NotFound(t *testing.T) {
 	assert.ErrorIs(t, err, contracts.ErrNotFound)
 }
 
+// This function handles test memory store get app by name not found
+// It supports test memory store get app by name not found behavior
 func TestMemoryStore_GetAppByName_NotFound(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -56,6 +70,8 @@ func TestMemoryStore_GetAppByName_NotFound(t *testing.T) {
 	assert.ErrorIs(t, err, contracts.ErrNotFound)
 }
 
+// This function handles test memory store list apps count
+// It supports test memory store list apps count behavior
 func TestMemoryStore_ListApps_Count(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -73,6 +89,8 @@ func TestMemoryStore_ListApps_Count(t *testing.T) {
 	assert.Len(t, apps, 2)
 }
 
+// This function handles test memory store create deployment app missing not found
+// It supports test memory store create deployment app missing not found behavior
 func TestMemoryStore_CreateDeployment_AppMissing_NotFound(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -84,6 +102,8 @@ func TestMemoryStore_CreateDeployment_AppMissing_NotFound(t *testing.T) {
 	assert.ErrorIs(t, err, contracts.ErrNotFound)
 }
 
+// This function handles test memory store create deployment and get by id ok
+// It supports test memory store create deployment and get by id ok behavior
 func TestMemoryStore_CreateDeployment_And_GetByID_OK(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -102,6 +122,8 @@ func TestMemoryStore_CreateDeployment_And_GetByID_OK(t *testing.T) {
 	assert.Equal(t, domain.DeploymentStatusQueued, got.Status)
 }
 
+// This function handles test memory store list deployments by app id order and reflects updates
+// It supports test memory store list deployments by app id order and reflects updates behavior
 func TestMemoryStore_ListDeploymentsByAppID_OrderAndReflectsUpdates(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -131,6 +153,8 @@ func TestMemoryStore_ListDeploymentsByAppID_OrderAndReflectsUpdates(t *testing.T
 	assert.Equal(t, d2.ID, deps[1].ID)
 }
 
+// This function handles test memory store list deployments by app id empty slice
+// It supports test memory store list deployments by app id empty slice behavior
 func TestMemoryStore_ListDeploymentsByAppID_EmptySlice(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -140,6 +164,8 @@ func TestMemoryStore_ListDeploymentsByAppID_EmptySlice(t *testing.T) {
 	assert.Empty(t, deps)
 }
 
+// This function handles test memory store take next queued deployment fifo
+// It supports test memory store take next queued deployment fifo behavior
 func TestMemoryStore_TakeNextQueuedDeployment_FIFO(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -165,6 +191,8 @@ func TestMemoryStore_TakeNextQueuedDeployment_FIFO(t *testing.T) {
 	assert.ErrorIs(t, err, contracts.ErrNotFound)
 }
 
+// This function handles test memory store take next queued deployment skips non queued
+// It supports test memory store take next queued deployment skips non queued behavior
 func TestMemoryStore_TakeNextQueuedDeployment_SkipsNonQueued(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -189,6 +217,8 @@ func TestMemoryStore_TakeNextQueuedDeployment_SkipsNonQueued(t *testing.T) {
 	assert.ErrorIs(t, err, contracts.ErrNotFound)
 }
 
+// This function handles test memory store update deployment not found
+// It supports test memory store update deployment not found behavior
 func TestMemoryStore_UpdateDeployment_NotFound(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -200,6 +230,8 @@ func TestMemoryStore_UpdateDeployment_NotFound(t *testing.T) {
 	assert.ErrorIs(t, err, contracts.ErrNotFound)
 }
 
+// This function handles ptr int
+// It supports ptr int behavior
 func ptrInt(v int) *int {
 	return &v
 }

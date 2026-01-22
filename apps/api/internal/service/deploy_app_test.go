@@ -1,3 +1,9 @@
+// Tests for deployment service behaviors
+// Tests include queueing and runtime processing
+// Tests verify error handling and status updates
+// Tests cover no work and missing app cases
+// Tests verify url behavior when expose is false
+
 package service_test
 
 import (
@@ -13,6 +19,8 @@ import (
 	"github.com/t0gun/paas/internal/service"
 )
 
+// This function handles test deploy app
+// It supports test deploy app behavior
 func TestDeployApp(t *testing.T) {
 	tests := []struct {
 		label     string
@@ -23,7 +31,7 @@ func TestDeployApp(t *testing.T) {
 	}{
 		{label: "invalid input: empty app id", appExists: false, appID: "", ok: false, err: service.ErrInvalidInput},
 		{label: "not found: app missing", appExists: false, appID: "missing", ok: false, err: service.ErrNotFound},
-		{label: "ok: queues deployment", appExists: true, appID: "", ok: true}, // we will create an app, use its ID
+		{label: "ok: queues deployment", appExists: true, appID: "", ok: true}, // we will create an app use its ID
 	}
 
 	for _, tt := range tests {
@@ -71,6 +79,8 @@ type storeWithHooks struct {
 	listDepsErr  error
 }
 
+// This function handles get app by id
+// It supports get app by id behavior
 func (s storeWithHooks) GetAppByID(ctx context.Context, id string) (domain.App, error) {
 	if s.getAppErr != nil {
 		return domain.App{}, s.getAppErr
@@ -78,6 +88,8 @@ func (s storeWithHooks) GetAppByID(ctx context.Context, id string) (domain.App, 
 	return s.Store.GetAppByID(ctx, id)
 }
 
+// This function handles create deployment
+// It supports create deployment behavior
 func (s storeWithHooks) CreateDeployment(ctx context.Context, dep domain.Deployment) error {
 	if s.createDepErr != nil {
 		return s.createDepErr
@@ -85,6 +97,8 @@ func (s storeWithHooks) CreateDeployment(ctx context.Context, dep domain.Deploym
 	return s.Store.CreateDeployment(ctx, dep)
 }
 
+// This function handles list deployments by app id
+// It supports list deployments by app id behavior
 func (s storeWithHooks) ListDeploymentsByAppID(ctx context.Context, appID string) ([]domain.Deployment, error) {
 	if s.listDepsErr != nil {
 		return nil, s.listDepsErr
@@ -92,6 +106,8 @@ func (s storeWithHooks) ListDeploymentsByAppID(ctx context.Context, appID string
 	return s.Store.ListDeploymentsByAppID(ctx, appID)
 }
 
+// This function handles test deploy app store errors
+// It supports test deploy app store errors behavior
 func TestDeployApp_StoreErrors(t *testing.T) {
 	tests := []struct {
 		label        string
@@ -137,6 +153,8 @@ type fakeRuntime struct {
 	called int
 }
 
+// This function handles deploy
+// It supports deploy behavior
 func (f *fakeRuntime) Deploy(ctx context.Context, app domain.App) (*string, error) {
 	f.called++
 	if f.err != nil {
@@ -150,6 +168,8 @@ func (f *fakeRuntime) Deploy(ctx context.Context, app domain.App) (*string, erro
 
 var _ contracts.Runtime = (*fakeRuntime)(nil)
 
+// This function handles test process next deployment
+// It supports test process next deployment behavior
 func TestProcessNextDeployment(t *testing.T) {
 	t.Run("no queued deployments", func(t *testing.T) {
 		ctx := context.Background()
@@ -225,6 +245,8 @@ func TestProcessNextDeployment(t *testing.T) {
 	})
 }
 
+// This function handles test list deployments
+// It supports test list deployments behavior
 func TestListDeployments(t *testing.T) {
 	t.Run("invalid input: empty app id", func(t *testing.T) {
 		ctx := context.Background()
@@ -286,6 +308,8 @@ func TestListDeployments(t *testing.T) {
 	})
 }
 
+// This function handles ptr string
+// It supports ptr string behavior
 func ptrString(v string) *string {
 	return &v
 }
