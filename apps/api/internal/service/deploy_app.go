@@ -12,8 +12,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/t0gun/paas/internal/contracts"
-	"github.com/t0gun/paas/internal/domain"
+	"github.com/t0gun/spacescale/internal/contracts"
+	"github.com/t0gun/spacescale/internal/domain"
 )
 
 // DeployAppParams contains the input needed to request a deployment

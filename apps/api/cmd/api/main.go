@@ -10,10 +10,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/t0gun/paas/internal/adapters/runtime/docker"
-	"github.com/t0gun/paas/internal/adapters/store"
-	"github.com/t0gun/paas/internal/http_api"
-	"github.com/t0gun/paas/internal/service"
+	"github.com/t0gun/spacescale/internal/adapters/runtime/docker"
+	"github.com/t0gun/spacescale/internal/adapters/store"
+	"github.com/t0gun/spacescale/internal/http_api"
+	"github.com/t0gun/spacescale/internal/service"
 )
 
 // main starts the API server and waits for a shutdown signal.

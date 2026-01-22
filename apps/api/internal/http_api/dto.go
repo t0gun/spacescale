@@ -9,7 +9,7 @@ package http_api
 import (
 	"time"
 
-	"github.com/t0gun/paas/internal/domain"
+	"github.com/t0gun/spacescale/internal/domain"
 )
 
 // createAppReq is the request body for creating an app

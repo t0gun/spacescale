@@ -13,10 +13,10 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/t0gun/paas/internal/adapters/store"
-	"github.com/t0gun/paas/internal/contracts"
-	"github.com/t0gun/paas/internal/domain"
-	"github.com/t0gun/paas/internal/service"
+	"github.com/t0gun/spacescale/internal/adapters/store"
+	"github.com/t0gun/spacescale/internal/contracts"
+	"github.com/t0gun/spacescale/internal/domain"
+	"github.com/t0gun/spacescale/internal/service"
 )
 
 // This function handles test deploy app

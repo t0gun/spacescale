@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/t0gun/paas/internal/service"
+	"github.com/t0gun/spacescale/internal/service"
 )
 
 // mapServiceErr converts service errors into HTTP status codes and messages.

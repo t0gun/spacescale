@@ -4,8 +4,8 @@ import (
 	"context"
 	"sync"
 
-	"github.com/t0gun/paas/internal/contracts"
-	"github.com/t0gun/paas/internal/domain"
+	"github.com/t0gun/spacescale/internal/contracts"
+	"github.com/t0gun/spacescale/internal/domain"
 )
 
 // MemoryStore is an in-memory implementation of contracts.Store.
@@ -87,6 +87,7 @@ func (s *MemoryStore) ListApps(ctx context.Context) ([]domain.App, error) {
 	}
 	return out, nil
 }
+
 // CreateDeployment stores a deployment and enqueues it when queued.
 func (s *MemoryStore) CreateDeployment(ctx context.Context, dep domain.Deployment) error {
 	s.mu.Lock()

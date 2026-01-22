@@ -9,7 +9,7 @@ package docker
 import (
 	"fmt"
 
-	"github.com/t0gun/paas/internal/domain"
+	"github.com/t0gun/spacescale/internal/domain"
 )
 
 // EdgeConfig holds settings for Traefik reverse proxy labels

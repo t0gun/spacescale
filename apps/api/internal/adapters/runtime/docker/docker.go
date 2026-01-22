@@ -20,7 +20,7 @@ import (
 	"github.com/moby/moby/api/types/image"
 	"github.com/moby/moby/api/types/network"
 	"github.com/moby/moby/client"
-	"github.com/t0gun/paas/internal/domain"
+	"github.com/t0gun/spacescale/internal/domain"
 )
 
 // Runtime deploys apps using the local Docker engine

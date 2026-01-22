@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/t0gun/paas/internal/adapters/runtime/docker"
-	"github.com/t0gun/paas/internal/domain"
+	"github.com/t0gun/spacescale/internal/adapters/runtime/docker"
+	"github.com/t0gun/spacescale/internal/domain"
 )
 
 // This function handles test docker runtime deploy

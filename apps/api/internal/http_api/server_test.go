@@ -15,10 +15,10 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/t0gun/paas/internal/adapters/runtime/fake"
-	"github.com/t0gun/paas/internal/adapters/store"
-	"github.com/t0gun/paas/internal/http_api"
-	"github.com/t0gun/paas/internal/service"
+	"github.com/t0gun/spacescale/internal/adapters/runtime/fake"
+	"github.com/t0gun/spacescale/internal/adapters/store"
+	"github.com/t0gun/spacescale/internal/http_api"
+	"github.com/t0gun/spacescale/internal/service"
 )
 
 // This function handles new test server

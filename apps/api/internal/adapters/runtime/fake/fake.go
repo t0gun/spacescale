@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/t0gun/paas/internal/domain"
+	"github.com/t0gun/spacescale/internal/domain"
 )
 
 // Runtime is a fake runtime that returns a predictable URL

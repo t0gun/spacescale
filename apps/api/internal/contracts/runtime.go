@@ -9,7 +9,7 @@ package contracts
 import (
 	"context"
 
-	"github.com/t0gun/paas/internal/domain"
+	"github.com/t0gun/spacescale/internal/domain"
 )
 
 // Runtime defines how an app is deployed and how its URL is returned

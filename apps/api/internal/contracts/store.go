@@ -3,7 +3,7 @@ package contracts
 import (
 	"context"
 
-	"github.com/t0gun/paas/internal/domain"
+	"github.com/t0gun/spacescale/internal/domain"
 )
 
 // Store defines persistence operations for apps and deployments.

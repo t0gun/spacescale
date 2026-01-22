@@ -11,8 +11,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/t0gun/paas/internal/contracts"
-	"github.com/t0gun/paas/internal/domain"
+	"github.com/t0gun/spacescale/internal/contracts"
+	"github.com/t0gun/spacescale/internal/domain"
 )
 
 // AppService coordinates application and deployment operations

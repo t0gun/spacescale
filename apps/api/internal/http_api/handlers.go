@@ -10,7 +10,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/t0gun/paas/internal/service"
+	"github.com/t0gun/spacescale/internal/service"
 )
 
 // This function handles handle create app
