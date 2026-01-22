@@ -12,6 +12,7 @@ BASE_DOMAIN ?= example.com
 TRAEFIK_NET ?= traefik
 TRAEFIK_ENTRYPOINT ?= web
 ENABLE_TLS ?= 0
+RUN_DOCKER_TESTS ?= 0
 
 build:
 	go build -v ./...
@@ -20,10 +21,10 @@ run:
 	ADDR=$(ADDR) WORKER_TOKEN=$(WORKER_TOKEN) BASE_DOMAIN=$(BASE_DOMAIN) TRAEFIK_NET=$(TRAEFIK_NET) TRAEFIK_ENTRYPOINT=$(TRAEFIK_ENTRYPOINT) ENABLE_TLS=$(ENABLE_TLS) go run ./cmd/api
 
 test:
-	go test ./... -cover
+	RUN_DOCKER_TESTS=$(RUN_DOCKER_TESTS) go test ./... -race -cover
 
 test-race:
-	go test ./... -race
+	RUN_DOCKER_TESTS=$(RUN_DOCKER_TESTS) go test ./... -race
 
 test-docker:
 	RUN_DOCKER_TESTS=1 go test -v ./internal/adapters/runtime/docker
