@@ -1,4 +1,4 @@
-// Worker authentication middleware for privileged endpoints.
+// Package http_api Worker authentication middleware for privileged endpoints.
 package http_api
 
 import "net/http"
