@@ -69,6 +69,7 @@ func LabelsForApp(app domain.App, port int, cfg EdgeConfig) map[string]string {
 	svc := "svc-" + app.Name
 
 	labels := map[string]string{
+		// NOTE: All keys here are Traefik v2 label syntax.
 		// enable traefik for this container
 		"traefik.enable": "true",
 

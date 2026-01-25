@@ -3,7 +3,6 @@
 // The test deploys a sample image
 // It checks the returned url format
 // It verifies runtime behavior end to end
-
 package docker_test
 
 import (

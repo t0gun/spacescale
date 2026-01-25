@@ -128,7 +128,7 @@ func (r *Runtime) Deploy(ctx context.Context, app domain.App) (*string, error) {
 		if port == nil {
 			return nil, fmt.Errorf(errPortRequiredMsg)
 		}
-		for k, v := range labelsForApp(app, *port, r.edge) {
+		for k, v := range LabelsForApp(app, *port, r.edge) {
 			lbls[k] = v
 		}
 	}
