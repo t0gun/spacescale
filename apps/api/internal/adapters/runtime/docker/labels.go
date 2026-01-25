@@ -21,9 +21,46 @@ type EdgeConfig struct {
 	CertResolver string // certificate resolver name e g lets encrypt
 }
 
-// This function handles labels for app
-// It supports labels for app behavior
-func labelsForApp(app domain.App, port int, cfg EdgeConfig) map[string]string {
+// LabelsForApp builds a set of Traefik v2 Docker labels for a single application container.
+//
+// Goal
+//   - Given an app name, a container port, and edge (Traefik) configuration,
+//     return a map of labels that Traefik can read from Docker and turn into:
+//     1) a Router (request matching + entrypoints)
+//     2) a Service (where to forward the traffic)
+//
+// What this function configures
+//   - Host-based routing: requests for <app>.<base-domain> are routed to the container.
+//   - EntryPoints: choose which Traefik listener(s) accept those requests.
+//   - Service port: which internal container port Traefik forwards to.
+//   - Optional TLS: enable TLS for the router and optionally select a cert resolver.
+//
+// Inputs
+//   - app: the domain app model. We use app.Name to construct names and the hostname.
+//   - port: the INTERNAL port exposed by the app process inside the container.
+//     This is not the published host port.
+//   - cfg: EdgeConfig settings that control routing and TLS behavior.
+//
+// Naming conventions used here
+//   - host   = "<app.Name>.<cfg.BaseDomain>"  (example: "myapp.spacescale.ai")
+//   - router = "app-<app.Name>"              (example: "app-myapp")
+//   - svc    = "svc-<app.Name>"              (example: "svc-myapp")
+//
+// Traefik label mental model (very short)
+//   - Router labels: traefik.http.routers.<name>.*
+//     Define how to match requests (rule) and where they enter Traefik (entrypoints).
+//   - Service labels: traefik.http.services.<name>.*
+//     Define the upstream target(s) for matched requests (port, load balancer, etc.).
+//
+// Network note
+//   - traefik.docker.network is important when containers are attached to multiple
+//     networks. It tells Traefik which network to use to reach the container IP.
+//
+// TLS note
+//   - When cfg.EnableTLS is true, we set router TLS to true.
+//   - If cfg.CertResolver is set, Traefik will use that resolver (must be configured
+//     in Traefik's static config) to obtain/renew certificates.
+func LabelsForApp(app domain.App, port int, cfg EdgeConfig) map[string]string {
 	// build the full hostname myapp spacescale ai myapp spacescale ai
 	host := fmt.Sprintf("%s.%s", app.Name, cfg.BaseDomain)
 
