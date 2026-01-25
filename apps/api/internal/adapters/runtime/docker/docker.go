@@ -1,9 +1,7 @@
-// Docker runtime implementation for deploying apps
-// This file pulls images and creates containers
-// Ports are resolved from app input or image metadata
-// Labels are applied when exposure is enabled
-// Env values are passed into container config
-// A url is returned when the app is exposed
+// Docker runtime for deploying apps locally.
+// It pulls images, creates containers, and configures routing labels.
+// Ports come from app input or image metadata.
+// URLs are returned only when apps are exposed.
 
 package docker
 
@@ -23,40 +21,44 @@ import (
 	"github.com/t0gun/spacescale/internal/domain"
 )
 
-// Runtime deploys apps using the local Docker engine
+// Runtime deploys apps using the local Docker engine.
 type Runtime struct {
 	cli           *client.Client
 	advertiseHost string
 	namePrefix    string
 	timeout       time.Duration
 
-	// edge routing
+	// edge routing config
 	edge EdgeConfig
+}
+
+// EdgeConfig configures Traefik routing for exposed apps.
+type EdgeConfig struct {
+	BaseDomain   string // root domain for app hostnames (app.example.com)
+	TraefikNet   string // Docker network for Traefik
+	Scheme       string // Traefik entrypoint (web/websecure)
+	EnableTLS    bool   // enable TLS termination
+	CertResolver string // certificate resolver name
 }
 
 const errPortRequiredMsg = "port required or image must expose exactly one port"
 
-// Option customizes runtime settings during construction
+// Option configures Runtime construction.
 type Option func(*Runtime)
 
-// WithAdvertiseHost This function handles with advertise host
-// It supports with advertise host behavior
+// WithAdvertiseHost sets the host used for advertised URLs.
 func WithAdvertiseHost(host string) Option { return func(r *Runtime) { r.advertiseHost = host } }
 
-// WithNamePrefix This function handles with name prefix
-// It supports with name prefix behavior
+// WithNamePrefix sets the container name prefix.
 func WithNamePrefix(prefix string) Option { return func(r *Runtime) { r.namePrefix = prefix } }
 
-// WithTimeout This function handles with timeout
-// It supports with timeout behavior
+// WithTimeout sets the deploy timeout.
 func WithTimeout(d time.Duration) Option { return func(r *Runtime) { r.timeout = d } }
 
-// WithEdge This function handles with edge
-// It supports with edge behavior
+// WithEdge overrides edge routing settings.
 func WithEdge(cfg EdgeConfig) Option { return func(r *Runtime) { r.edge = cfg } }
 
-// New This function handles new
-// It supports new behavior
+// New creates a Runtime with defaults and Docker client.
 func New(opts ...Option) (*Runtime, error) {
 	cli, err := client.New(
 		client.FromEnv,
@@ -65,7 +67,7 @@ func New(opts ...Option) (*Runtime, error) {
 	if err != nil {
 		return nil, err
 	}
-	// default runt time before mutation
+	// default runtime before options
 	r := &Runtime{
 		cli:           cli,
 		advertiseHost: "127.0.0.1",
@@ -84,12 +86,11 @@ func New(opts ...Option) (*Runtime, error) {
 	return r, nil
 }
 
-// This function handles deploy
-// It supports deploy behavior
+// Deploy pulls the image, creates the container, and returns a URL when exposed.
 func (r *Runtime) Deploy(ctx context.Context, app domain.App) (*string, error) {
 	ctx, cancel := context.WithTimeout(ctx, r.timeout)
 	defer cancel()
-	// validate
+	// validate input
 	if strings.TrimSpace(app.Image) == "" {
 		return nil, fmt.Errorf("docker runtime: empty image")
 	}
@@ -101,12 +102,12 @@ func (r *Runtime) Deploy(ctx context.Context, app domain.App) (*string, error) {
 			return nil, fmt.Errorf("docker runtime: empty traefik network")
 		}
 		if strings.TrimSpace(r.edge.Scheme) == "" {
-			// this is actually traefik entrypoint name web websecure
+			// default Traefik entrypoint name
 			r.edge.Scheme = "web"
 		}
 	}
 
-	// pull docker image
+	// pull image
 	if err := r.pull(ctx, app.Image); err != nil {
 		return nil, fmt.Errorf("docker runtime: pull: %w", err)
 	}
@@ -120,7 +121,7 @@ func (r *Runtime) Deploy(ctx context.Context, app domain.App) (*string, error) {
 	name := r.namePrefix + app.Name
 	_ = r.removeIfExists(ctx, name)
 
-	// traefik labels
+	// base labels
 	lbls := map[string]string{
 		"paas.app": app.Name,
 	}
@@ -128,7 +129,7 @@ func (r *Runtime) Deploy(ctx context.Context, app domain.App) (*string, error) {
 		if port == nil {
 			return nil, fmt.Errorf(errPortRequiredMsg)
 		}
-		for k, v := range LabelsForApp(app, *port, r.edge) {
+		for k, v := range labelsForApp(app, *port, r.edge) {
 			lbls[k] = v
 		}
 	}
@@ -139,7 +140,7 @@ func (r *Runtime) Deploy(ctx context.Context, app domain.App) (*string, error) {
 		Env:    envToList(app.Env),
 	}
 	if port != nil {
-		// Expose port internally for docs metadata traefik routes to container port
+		// expose internal port for routing
 		cPort, err := network.ParsePort(fmt.Sprintf("%d/tcp", *port))
 		if err != nil {
 			return nil, fmt.Errorf("docker runtime: parse port: %w", err)
@@ -154,7 +155,7 @@ func (r *Runtime) Deploy(ctx context.Context, app domain.App) (*string, error) {
 		},
 	}
 	if app.Expose {
-		// put container on the traefik network
+		// attach to Traefik network
 		hostcfg.NetworkMode = container.NetworkMode(r.edge.TraefikNet)
 	}
 
@@ -182,8 +183,7 @@ func (r *Runtime) Deploy(ctx context.Context, app domain.App) (*string, error) {
 	return &url, nil
 }
 
-// This function handles pull
-// It supports pull behavior
+// pull pulls an image and drains the response stream.
 func (r *Runtime) pull(ctx context.Context, ref string) error {
 	rc, err := r.cli.ImagePull(ctx, ref, client.ImagePullOptions{})
 	if err != nil {
@@ -194,8 +194,7 @@ func (r *Runtime) pull(ctx context.Context, ref string) error {
 	return nil
 }
 
-// This function handles remove if exists
-// It supports remove if exists behavior
+// removeIfExists removes a container and ignores not found errors.
 func (r *Runtime) removeIfExists(ctx context.Context, name string) error {
 	_, err := r.cli.ContainerRemove(ctx, name, client.ContainerRemoveOptions{Force: true})
 	if err == nil {
@@ -208,8 +207,7 @@ func (r *Runtime) removeIfExists(ctx context.Context, name string) error {
 	return err
 }
 
-// This function handles resolve port
-// It supports resolve port behavior
+// resolvePort chooses the port from the app or image when exposed.
 func (r *Runtime) resolvePort(ctx context.Context, app domain.App) (*int, error) {
 	if app.Port != nil {
 		if *app.Port < 1 || *app.Port > 65535 {
@@ -227,8 +225,7 @@ func (r *Runtime) resolvePort(ctx context.Context, app domain.App) (*int, error)
 	return &port, nil
 }
 
-// This function handles port from image
-// It supports port from image behavior
+// portFromImage inspects the image and returns the sole exposed port.
 func (r *Runtime) portFromImage(ctx context.Context, ref string) (int, error) {
 	inspect, err := r.cli.ImageInspect(ctx, ref)
 	if err != nil {
@@ -248,8 +245,7 @@ func (r *Runtime) portFromImage(ctx context.Context, ref string) (int, error) {
 	return port, nil
 }
 
-// This function handles exposed ports from inspect
-// It supports exposed ports from inspect behavior
+// exposedPortsFromInspect returns sorted exposed ports from image inspect.
 func exposedPortsFromInspect(inspect image.InspectResponse) []string {
 	if inspect.Config == nil || len(inspect.Config.ExposedPorts) == 0 {
 		return nil
@@ -262,8 +258,7 @@ func exposedPortsFromInspect(inspect image.InspectResponse) []string {
 	return ports
 }
 
-// This function handles parse exposed port
-// It supports parse exposed port behavior
+// parseExposedPort parses a port number from an exposed port spec.
 func parseExposedPort(spec string) (int, error) {
 	spec = strings.TrimSpace(spec)
 	if spec == "" {
@@ -275,8 +270,7 @@ func parseExposedPort(spec string) (int, error) {
 	return strconv.Atoi(spec)
 }
 
-// This function handles env to list
-// It supports env to list behavior
+// envToList converts an env map to sorted KEY=VALUE pairs.
 func envToList(env map[string]string) []string {
 	if len(env) == 0 {
 		return nil
@@ -294,8 +288,7 @@ func envToList(env map[string]string) []string {
 	return out
 }
 
-// This function handles host port
-// It supports host port behavior
+// hostPort returns the mapped host port for a container port.
 func (r *Runtime) hostPort(ctx context.Context, containerID string, cPort network.Port) (string, error) {
 	ins, err := r.cli.ContainerInspect(ctx, containerID, client.ContainerInspectOptions{})
 	if err != nil {
@@ -310,4 +303,49 @@ func (r *Runtime) hostPort(ctx context.Context, containerID string, cPort networ
 		return "", fmt.Errorf("no host port mapped for %s", cPort)
 	}
 	return b[0].HostPort, nil
+}
+
+// labelsForApp builds Traefik v2 labels for one app container.
+// It wires host routing, entrypoint, service port, and optional TLS.
+// It uses host "<app>.<base-domain>", router "app-<app>", service "svc-<app>".
+// It expects port to be the internal container port.
+// CertResolver is set only when TLS is enabled.
+func labelsForApp(app domain.App, port int, cfg EdgeConfig) map[string]string {
+	// build hostname
+	host := fmt.Sprintf("%s.%s", app.Name, cfg.BaseDomain)
+
+	// router and service names
+	router := "app-" + app.Name
+	svc := "svc-" + app.Name
+
+	labels := map[string]string{
+		// Traefik v2 labels
+		// enable Traefik
+		"traefik.enable": "true",
+
+		// Traefik network
+		"traefik.docker.network": cfg.TraefikNet,
+
+		// router host rule
+		fmt.Sprintf("traefik.http.routers.%s.rule", router): fmt.Sprintf("Host(`%s`)", host),
+
+		// router entrypoint
+		fmt.Sprintf("traefik.http.routers.%s.entrypoints", router): cfg.Scheme,
+
+		// service port
+		fmt.Sprintf("traefik.http.services.%s.loadbalancer.server.port", svc): fmt.Sprintf("%d", port),
+	}
+
+	// optional TLS
+	if cfg.EnableTLS {
+		// enable TLS
+		labels[fmt.Sprintf("traefik.http.routers.%s.tls", router)] = "true"
+
+		// set cert resolver
+		if cfg.CertResolver != "" {
+			labels[fmt.Sprintf("traefik.http.routers.%s.tls.certresolver", router)] = cfg.CertResolver
+		}
+	}
+
+	return labels
 }
