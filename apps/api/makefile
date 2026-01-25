@@ -8,7 +8,7 @@
 
 ADDR ?= :8080
 WORKER_TOKEN ?=
-BASE_DOMAIN ?= example.com
+BASE_DOMAIN ?= localtest.me
 TRAEFIK_NET ?= traefik
 TRAEFIK_ENTRYPOINT ?= web
 ENABLE_TLS ?= 0
