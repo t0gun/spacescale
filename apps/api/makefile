@@ -1,4 +1,4 @@
-# Build and test targets for the paas api
+# Build and test targets for the spacescale api
 # Variables allow runtime configuration for run
 # Test target runs unit tests
 # Test docker target runs docker runtime tests

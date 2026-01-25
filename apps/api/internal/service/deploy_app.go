@@ -26,8 +26,7 @@ type ListDeploymentsParams struct {
 	AppID string
 }
 
-// This function handles deploy app
-// It supports deploy app behavior
+// DeployApp creates a queued deployment for an app.
 func (s *AppService) DeployApp(ctx context.Context, p DeployAppParams) (domain.Deployment, error) {
 	if p.AppID == "" {
 		return domain.Deployment{}, fmt.Errorf("%w: app id is required", ErrInvalidInput)
@@ -49,13 +48,12 @@ func (s *AppService) DeployApp(ctx context.Context, p DeployAppParams) (domain.D
 			// Store enforces that the app must exist
 			return domain.Deployment{}, ErrNotFound
 		}
-		return domain.Deployment{}, ErrNotFound
+		return domain.Deployment{}, err
 	}
 	return dep, nil
 }
 
-// This function handles process next deployment
-// It supports process next deployment behavior
+// ProcessNextDeployment runs the next queued deployment.
 func (s *AppService) ProcessNextDeployment(ctx context.Context) (domain.Deployment, error) {
 	if s.runtime == nil {
 		return domain.Deployment{}, ErrNoRuntime
@@ -112,8 +110,7 @@ func (s *AppService) ProcessNextDeployment(ctx context.Context) (domain.Deployme
 
 }
 
-// This function handles list deployments
-// It supports list deployments behavior
+// ListDeployments returns deployments for an app.
 func (s *AppService) ListDeployments(ctx context.Context, p ListDeploymentsParams) ([]domain.Deployment, error) {
 	if p.AppID == "" {
 		return nil, ErrInvalidInput

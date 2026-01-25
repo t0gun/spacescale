@@ -22,10 +22,11 @@ learn from each other
 - always spot where there are inconsistencies in codebase and provide the best ways to resolve them.
 - the makefile is your friend.
 - comments are important part to make complex code understandable. Official go code base teaches us this.
-- so write comments to explain complex implementation where necessary and comments at the beginning of file.
+- so write comments to explain complex implementation  and comments at the beginning of file.
 - if you work directly in the file check if the comments at the beginning of the file and other places make sense after
   your edits
 - tests are your friend, if you work directly in the codebase always test your implementation.
-- so the goDoc comments on every function must be present 10 lines max and always use function name to start as expected
+- so the goDoc comments on every function must be present 12 lines max and always use function name to start as expected
   by go
 - always optimize for clarity, simplicity, maintainability
+- for the header files comment the package as to prefix it as required by GoDoc

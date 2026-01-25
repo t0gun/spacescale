@@ -71,7 +71,7 @@ func New(opts ...Option) (*Runtime, error) {
 	r := &Runtime{
 		cli:           cli,
 		advertiseHost: "127.0.0.1",
-		namePrefix:    "paas-",
+		namePrefix:    "sample-app-",
 		timeout:       2 * time.Minute,
 		edge: EdgeConfig{
 			BaseDomain: "localtest.me",
@@ -123,7 +123,7 @@ func (r *Runtime) Deploy(ctx context.Context, app domain.App) (*string, error) {
 
 	// base labels
 	lbls := map[string]string{
-		"paas.app": app.Name,
+		"spacescale.app": app.Name,
 	}
 	if app.Expose {
 		if port == nil {

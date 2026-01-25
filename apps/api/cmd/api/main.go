@@ -1,3 +1,4 @@
+// API service entry point and lifecycle wiring.
 package main
 
 import (

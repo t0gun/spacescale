@@ -22,8 +22,7 @@ var (
 	appNameRe = regexp.MustCompile(`^[a-z0-9]+(-[a-z0-9]+)*$`)
 )
 
-// ValidateAppName This function handles validate app name
-// It supports validate app name behavior
+// ValidateAppName validates the app name format.
 func ValidateAppName(name string) error {
 	name = strings.TrimSpace(name)
 	if name == "" || !appNameRe.MatchString(name) {
@@ -32,8 +31,7 @@ func ValidateAppName(name string) error {
 	return nil
 }
 
-// ValidateImageRef This function handles validate image ref
-// It supports validate image ref behavior
+// ValidateImageRef validates the image reference string.
 func ValidateImageRef(image string) error {
 	if strings.TrimSpace(image) == "" {
 		return ErrInvalidImage
@@ -42,8 +40,7 @@ func ValidateImageRef(image string) error {
 	return nil
 }
 
-// ValidatePort This function handles validate port
-// It supports validate port behavior
+// ValidatePort validates an optional port value.
 func ValidatePort(port *int) error {
 	if port == nil {
 		return nil

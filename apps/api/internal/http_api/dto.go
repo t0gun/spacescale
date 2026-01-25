@@ -34,8 +34,7 @@ type appResp struct {
 	UpdatedAt time.Time         `json:"updatedAt"`
 }
 
-// This function handles to app resp
-// It supports to app resp behavior
+// toAppResp maps a domain app to the API response shape.
 func toAppResp(a domain.App) appResp {
 	return appResp{
 		ID:        a.ID,
@@ -61,8 +60,7 @@ type deploymentResp struct {
 	UpdatedAt time.Time               `json:"updatedAt"`
 }
 
-// This function handles to deployment resp
-// It supports to deployment resp behavior
+// toDeploymentResp maps a domain deployment to the API response shape.
 func toDeploymentResp(d domain.Deployment) deploymentResp {
 	return deploymentResp{
 		ID:        d.ID,

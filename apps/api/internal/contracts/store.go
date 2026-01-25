@@ -1,3 +1,4 @@
+// Store contract definitions for persistence adapters.
 package contracts
 
 import (

@@ -1,3 +1,4 @@
+// Service error definitions for HTTP mapping.
 package service
 
 import "errors"

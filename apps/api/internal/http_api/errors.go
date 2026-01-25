@@ -1,3 +1,4 @@
+// HTTP error mapping helpers.
 package http_api
 
 import (

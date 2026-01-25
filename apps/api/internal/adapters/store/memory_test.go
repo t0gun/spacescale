@@ -17,8 +17,7 @@ import (
 	"github.com/t0gun/spacescale/internal/domain"
 )
 
-// This function handles test memory store create app ok
-// It supports test memory store create app ok behavior
+// TestMemoryStore_CreateApp_OK verifies app creation succeeds.
 func TestMemoryStore_CreateApp_OK(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -30,8 +29,7 @@ func TestMemoryStore_CreateApp_OK(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-// This function handles test memory store create app duplicate name conflict
-// It supports test memory store create app duplicate name conflict behavior
+// TestMemoryStore_CreateApp_DuplicateName_Conflict verifies duplicate names return conflict.
 func TestMemoryStore_CreateApp_DuplicateName_Conflict(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -48,8 +46,7 @@ func TestMemoryStore_CreateApp_DuplicateName_Conflict(t *testing.T) {
 	assert.ErrorIs(t, err, contracts.ErrConflict)
 }
 
-// This function handles test memory store get app by id not found
-// It supports test memory store get app by id not found behavior
+// TestMemoryStore_GetAppByID_NotFound verifies missing ids return not found.
 func TestMemoryStore_GetAppByID_NotFound(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -59,8 +56,7 @@ func TestMemoryStore_GetAppByID_NotFound(t *testing.T) {
 	assert.ErrorIs(t, err, contracts.ErrNotFound)
 }
 
-// This function handles test memory store get app by name not found
-// It supports test memory store get app by name not found behavior
+// TestMemoryStore_GetAppByName_NotFound verifies missing names return not found.
 func TestMemoryStore_GetAppByName_NotFound(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -70,8 +66,7 @@ func TestMemoryStore_GetAppByName_NotFound(t *testing.T) {
 	assert.ErrorIs(t, err, contracts.ErrNotFound)
 }
 
-// This function handles test memory store list apps count
-// It supports test memory store list apps count behavior
+// TestMemoryStore_ListApps_Count verifies list count.
 func TestMemoryStore_ListApps_Count(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -89,8 +84,7 @@ func TestMemoryStore_ListApps_Count(t *testing.T) {
 	assert.Len(t, apps, 2)
 }
 
-// This function handles test memory store create deployment app missing not found
-// It supports test memory store create deployment app missing not found behavior
+// TestMemoryStore_CreateDeployment_AppMissing_NotFound verifies missing apps return not found.
 func TestMemoryStore_CreateDeployment_AppMissing_NotFound(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -102,8 +96,7 @@ func TestMemoryStore_CreateDeployment_AppMissing_NotFound(t *testing.T) {
 	assert.ErrorIs(t, err, contracts.ErrNotFound)
 }
 
-// This function handles test memory store create deployment and get by id ok
-// It supports test memory store create deployment and get by id ok behavior
+// TestMemoryStore_CreateDeployment_And_GetByID_OK verifies create and fetch by id.
 func TestMemoryStore_CreateDeployment_And_GetByID_OK(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -122,8 +115,7 @@ func TestMemoryStore_CreateDeployment_And_GetByID_OK(t *testing.T) {
 	assert.Equal(t, domain.DeploymentStatusQueued, got.Status)
 }
 
-// This function handles test memory store list deployments by app id order and reflects updates
-// It supports test memory store list deployments by app id order and reflects updates behavior
+// TestMemoryStore_ListDeploymentsByAppID_OrderAndReflectsUpdates verifies ordering and updates.
 func TestMemoryStore_ListDeploymentsByAppID_OrderAndReflectsUpdates(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -153,8 +145,7 @@ func TestMemoryStore_ListDeploymentsByAppID_OrderAndReflectsUpdates(t *testing.T
 	assert.Equal(t, d2.ID, deps[1].ID)
 }
 
-// This function handles test memory store list deployments by app id empty slice
-// It supports test memory store list deployments by app id empty slice behavior
+// TestMemoryStore_ListDeploymentsByAppID_EmptySlice verifies empty results.
 func TestMemoryStore_ListDeploymentsByAppID_EmptySlice(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -164,8 +155,7 @@ func TestMemoryStore_ListDeploymentsByAppID_EmptySlice(t *testing.T) {
 	assert.Empty(t, deps)
 }
 
-// This function handles test memory store take next queued deployment fifo
-// It supports test memory store take next queued deployment fifo behavior
+// TestMemoryStore_TakeNextQueuedDeployment_FIFO verifies FIFO queue behavior.
 func TestMemoryStore_TakeNextQueuedDeployment_FIFO(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -191,8 +181,7 @@ func TestMemoryStore_TakeNextQueuedDeployment_FIFO(t *testing.T) {
 	assert.ErrorIs(t, err, contracts.ErrNotFound)
 }
 
-// This function handles test memory store take next queued deployment skips non queued
-// It supports test memory store take next queued deployment skips non queued behavior
+// TestMemoryStore_TakeNextQueuedDeployment_SkipsNonQueued skips non-queued deployments.
 func TestMemoryStore_TakeNextQueuedDeployment_SkipsNonQueued(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -217,8 +206,7 @@ func TestMemoryStore_TakeNextQueuedDeployment_SkipsNonQueued(t *testing.T) {
 	assert.ErrorIs(t, err, contracts.ErrNotFound)
 }
 
-// This function handles test memory store update deployment not found
-// It supports test memory store update deployment not found behavior
+// TestMemoryStore_UpdateDeployment_NotFound verifies missing updates fail.
 func TestMemoryStore_UpdateDeployment_NotFound(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
@@ -230,8 +218,7 @@ func TestMemoryStore_UpdateDeployment_NotFound(t *testing.T) {
 	assert.ErrorIs(t, err, contracts.ErrNotFound)
 }
 
-// This function handles ptr int
-// It supports ptr int behavior
+// ptrInt returns a pointer to v.
 func ptrInt(v int) *int {
 	return &v
 }

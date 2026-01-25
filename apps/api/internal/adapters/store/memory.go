@@ -1,3 +1,4 @@
+// In-memory store adapter for apps and deployments.
 package store
 
 import (

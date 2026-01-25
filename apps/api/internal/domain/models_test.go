@@ -14,8 +14,7 @@ import (
 	"github.com/t0gun/spacescale/internal/domain"
 )
 
-// This function handles test new app default
-// It supports test new app default behavior
+// TestNewAppDefault verifies app defaults and validation.
 func TestNewAppDefault(t *testing.T) {
 	tests := []struct {
 		label      string
@@ -59,20 +58,17 @@ func TestNewAppDefault(t *testing.T) {
 	}
 }
 
-// This function handles ptr bool
-// It supports ptr bool behavior
+// ptrBool returns a pointer to v.
 func ptrBool(v bool) *bool {
 	return &v
 }
 
-// This function handles ptr int
-// It supports ptr int behavior
+// ptrInt returns a pointer to v.
 func ptrInt(v int) *int {
 	return &v
 }
 
-// This function handles test new deployment
-// It supports test new deployment behavior
+// TestNewDeployment verifies deployment defaults.
 func TestNewDeployment(t *testing.T) {
 	tests := []struct {
 		label string

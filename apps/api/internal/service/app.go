@@ -22,14 +22,12 @@ type AppService struct {
 	runtime contracts.Runtime
 }
 
-// This function handles new app service
-// It supports new app service behavior
+// NewAppService builds an app service without a runtime.
 func NewAppService(store contracts.Store) *AppService {
 	return &AppService{store: store}
 }
 
-// This function handles new app service with runtime
-// It supports new app service with runtime behavior
+// NewAppServiceWithRuntime builds an app service with a runtime.
 func NewAppServiceWithRuntime(store contracts.Store, rt contracts.Runtime) *AppService {
 	return &AppService{store: store, runtime: rt}
 }
@@ -44,8 +42,7 @@ type CreateAppParams struct {
 	Env    map[string]string
 }
 
-// This function handles create app
-// It supports create app behavior
+// CreateApp validates input and stores a new app.
 func (s *AppService) CreateApp(ctx context.Context, p CreateAppParams) (domain.App, error) {
 	// Build and validate the domain object first to keep rules in one place
 	app, err := domain.NewApp(domain.NewAppParams{
@@ -70,14 +67,12 @@ func (s *AppService) CreateApp(ctx context.Context, p CreateAppParams) (domain.A
 	return app, nil
 }
 
-// This function handles list apps
-// It supports list apps behavior
+// ListApps returns all stored apps.
 func (s *AppService) ListApps(ctx context.Context) ([]domain.App, error) {
 	return s.store.ListApps(ctx)
 }
 
-// This function handles get app by id
-// It supports get app by id behavior
+// GetAppByID returns a single app by id.
 func (s *AppService) GetAppByID(ctx context.Context, id string) (domain.App, error) {
 	if id == "" {
 		return domain.App{}, ErrInvalidInput

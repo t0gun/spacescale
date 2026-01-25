@@ -14,7 +14,6 @@ import (
 
 // Runtime defines how an app is deployed and how its URL is returned
 type Runtime interface {
-	// This function handles deploy
-	// It supports deploy behavior
+	// Deploy runs an app deployment and returns its URL when exposed.
 	Deploy(ctx context.Context, app domain.App) (url *string, err error)
 }

@@ -1,3 +1,4 @@
+// HTTP server routing and middleware wiring.
 package http_api
 
 import (
@@ -33,12 +34,6 @@ func (s *Server) Router() http.Handler {
 	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 	})
-
-	// API docs (served from ./docs)
-	r.Get("/docs", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/docs/index.html", http.StatusMovedPermanently)
-	})
-	r.Mount("/docs", http.StripPrefix("/docs", http.FileServer(http.Dir("docs"))))
 
 	r.Route("/v0", func(r chi.Router) {
 		r.Post("/apps", s.handleCreateApp)

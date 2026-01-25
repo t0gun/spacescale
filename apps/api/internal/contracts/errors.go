@@ -1,3 +1,4 @@
+// Contract error values shared by adapters and services.
 package contracts
 
 import "errors"

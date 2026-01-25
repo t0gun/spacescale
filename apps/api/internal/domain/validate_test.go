@@ -14,8 +14,7 @@ import (
 	"github.com/t0gun/spacescale/internal/domain"
 )
 
-// This function handles test validate app name
-// It supports test validate app name behavior
+// TestValidateAppName verifies app name validation.
 func TestValidateAppName(t *testing.T) {
 	tests := []struct {
 		name  string
@@ -48,8 +47,7 @@ func TestValidateAppName(t *testing.T) {
 	}
 }
 
-// This function handles test validate image ref
-// It supports test validate image ref behavior
+// TestValidateImageRef verifies image reference validation.
 func TestValidateImageRef(t *testing.T) {
 	tests := []struct {
 		label string
@@ -78,8 +76,7 @@ func TestValidateImageRef(t *testing.T) {
 	}
 }
 
-// This function handles test validate port
-// It supports test validate port behavior
+// TestValidatePort verifies port validation.
 func TestValidatePort(t *testing.T) {
 	tests := []struct {
 		label string

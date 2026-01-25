@@ -56,8 +56,7 @@ type NewAppParams struct {
 	Env    map[string]string
 }
 
-// NewApp This function handles new app
-// It supports new app behavior
+// NewApp builds a validated App from input parameters.
 func NewApp(p NewAppParams) (App, error) {
 	if err := ValidateAppName(p.Name); err != nil {
 		return App{}, err
@@ -108,8 +107,7 @@ type Deployment struct {
 	UpdatedAt time.Time
 }
 
-// NewDeployment This function handles new deployment
-// It supports new deployment behavior
+// NewDeployment builds a queued Deployment for an app.
 func NewDeployment(appID string) Deployment {
 	now := time.Now().UTC()
 	return Deployment{
