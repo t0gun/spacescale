@@ -26,7 +26,7 @@ func newTestServer(t *testing.T, workerToken string) (*httptest.Server, *store.M
 	t.Helper()
 
 	st := store.NewMemoryStore()
-	rt, _ := docker.New()
+	rt, _ := docker.New(docker.WithNamePrefix("spacescale-http-api-"))
 	svc := service.NewAppServiceWithRuntime(st, rt)
 
 	api := http_api.NewServer(svc, workerToken)
