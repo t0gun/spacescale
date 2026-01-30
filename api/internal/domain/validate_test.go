@@ -11,7 +11,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/t0gun/spacescale/internal/domain"
 )
 
 // TestValidateAppName verifies app name validation.
@@ -35,7 +34,7 @@ func TestValidateAppName(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.label, func(t *testing.T) {
-			err := domain.ValidateAppName(tc.name)
+			err := ValidateAppName(tc.name)
 
 			if tc.ok {
 				assert.NoError(t, err, "expected valid name: %q", tc.name)
@@ -64,7 +63,7 @@ func TestValidateImageRef(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.label, func(t *testing.T) {
-			err := domain.ValidateImageRef(tt.image)
+			err := ValidateImageRef(tt.image)
 
 			if tt.ok {
 				assert.NoError(t, err, "expected ok for %q", tt.image)
@@ -100,7 +99,7 @@ func TestValidatePort(t *testing.T) {
 			name = fmt.Sprintf("%s (%d)", tt.label, *tt.port)
 		}
 		t.Run(name, func(t *testing.T) {
-			err := domain.ValidatePort(tt.port)
+			err := ValidatePort(tt.port)
 
 			if tt.ok {
 				assert.NoError(t, err)

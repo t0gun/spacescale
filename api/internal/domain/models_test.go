@@ -11,28 +11,27 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/t0gun/spacescale/internal/domain"
 )
 
 // TestNewAppDefault verifies app defaults and validation.
 func TestNewAppDefault(t *testing.T) {
 	tests := []struct {
-		label      string
-		in         domain.NewAppParams
-		ok         bool
+		label string
+		in    NewAppParams
+		ok    bool
 		wantExpose bool
 	}{
-		{label: "valid app", in: domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)}, ok: true, wantExpose: true},
-		{label: "valid app no port", in: domain.NewAppParams{Name: "hello", Image: "nginx:latest"}, ok: true, wantExpose: true},
-		{label: "valid app expose false", in: domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080), Expose: ptrBool(false)}, ok: true, wantExpose: false},
-		{label: "invalid name", in: domain.NewAppParams{Name: "Bad_Name", Image: "nginx:latest", Port: ptrInt(8080)}, ok: false},
-		{label: "empty image", in: domain.NewAppParams{Name: "hello", Image: "", Port: ptrInt(8080)}, ok: false},
-		{label: "invalid port", in: domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(0)}, ok: false},
+		{label: "valid app", in: NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)}, ok: true, wantExpose: true},
+		{label: "valid app no port", in: NewAppParams{Name: "hello", Image: "nginx:latest"}, ok: true, wantExpose: true},
+		{label: "valid app expose false", in: NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080), Expose: ptrBool(false)}, ok: true, wantExpose: false},
+		{label: "invalid name", in: NewAppParams{Name: "Bad_Name", Image: "nginx:latest", Port: ptrInt(8080)}, ok: false},
+		{label: "empty image", in: NewAppParams{Name: "hello", Image: "", Port: ptrInt(8080)}, ok: false},
+		{label: "invalid port", in: NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(0)}, ok: false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.label, func(t *testing.T) {
-			app, err := domain.NewApp(tt.in)
+			app, err := NewApp(tt.in)
 
 			if tt.ok {
 				assert.NoError(t, err)
@@ -45,7 +44,7 @@ func TestNewAppDefault(t *testing.T) {
 					assert.Equal(t, *tt.in.Port, *app.Port)
 				}
 				assert.Equal(t, tt.in.Image, app.Image)
-				assert.Equal(t, domain.AppStatusCreated, app.Status)
+				assert.Equal(t, AppStatusCreated, app.Status)
 				assert.Equal(t, tt.wantExpose, app.Expose)
 			}
 
@@ -80,11 +79,11 @@ func TestNewDeployment(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.label, func(t *testing.T) {
-			dep := domain.NewDeployment(tt.appID)
+			dep := NewDeployment(tt.appID)
 
 			assert.NotEmpty(t, dep.ID)
 			assert.Equal(t, tt.appID, dep.AppID)
-			assert.Equal(t, domain.DeploymentStatusQueued, dep.Status)
+			assert.Equal(t, DeploymentStatusQueued, dep.Status)
 
 			assert.False(t, dep.CreatedAt.IsZero())
 			assert.False(t, dep.UpdatedAt.IsZero())

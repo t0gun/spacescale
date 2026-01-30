@@ -16,7 +16,6 @@ import (
 	"github.com/t0gun/spacescale/internal/adapters/store"
 	"github.com/t0gun/spacescale/internal/contracts"
 	"github.com/t0gun/spacescale/internal/domain"
-	"github.com/t0gun/spacescale/internal/service"
 )
 
 // TestDeployApp verifies deployment creation behavior.
@@ -28,8 +27,8 @@ func TestDeployApp(t *testing.T) {
 		ok        bool
 		err       error
 	}{
-		{label: "invalid input: empty app id", appExists: false, appID: "", ok: false, err: service.ErrInvalidInput},
-		{label: "not found: app missing", appExists: false, appID: "missing", ok: false, err: service.ErrNotFound},
+		{label: "invalid input: empty app id", appExists: false, appID: "", ok: false, err: ErrInvalidInput},
+		{label: "not found: app missing", appExists: false, appID: "missing", ok: false, err: ErrNotFound},
 		{label: "ok: queues deployment", appExists: true, appID: "", ok: true}, // we will create an app use its ID
 	}
 
@@ -37,7 +36,7 @@ func TestDeployApp(t *testing.T) {
 		t.Run(tt.label, func(t *testing.T) {
 			ctx := context.Background()
 			st := store.NewMemoryStore()
-			svc := service.NewAppService(st)
+			svc := NewAppService(st)
 			appID := tt.appID
 
 			if tt.appExists {
@@ -50,7 +49,7 @@ func TestDeployApp(t *testing.T) {
 				assert.NoError(t, st.CreateApp(ctx, app))
 				appID = app.ID
 			}
-			dep, err := svc.DeployApp(ctx, service.DeployAppParams{AppID: appID})
+			dep, err := svc.DeployApp(ctx, DeployAppParams{AppID: appID})
 			if tt.ok {
 				assert.NoError(t, err)
 				assert.NotEmpty(t, dep.ID)
@@ -113,7 +112,7 @@ func TestDeployApp_StoreErrors(t *testing.T) {
 	}{
 		{label: "GetAppByID unexpected error bubbles up", getAppErr: errors.New("boom"), ok: false},
 		{label: "CreateDeployment unexpected error bubbles up", createDepErr: errors.New("boom"), ok: false},
-		{label: "CreateDeployment not found maps to ErrNotFound", createDepErr: contracts.ErrNotFound, wantErr: service.ErrNotFound, ok: false},
+		{label: "CreateDeployment not found maps to ErrNotFound", createDepErr: contracts.ErrNotFound, wantErr: ErrNotFound, ok: false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.label, func(t *testing.T) {
@@ -129,8 +128,8 @@ func TestDeployApp_StoreErrors(t *testing.T) {
 				createDepErr: tt.createDepErr,
 			}
 
-			svc := service.NewAppService(st)
-			dep, err := svc.DeployApp(ctx, service.DeployAppParams{AppID: app.ID})
+			svc := NewAppService(st)
+			dep, err := svc.DeployApp(ctx, DeployAppParams{AppID: app.ID})
 			assert.Error(t, err)
 			assert.Empty(t, dep.ID)
 
@@ -168,11 +167,11 @@ func TestProcessNextDeployment(t *testing.T) {
 		ctx := context.Background()
 		st := store.NewMemoryStore()
 		rt := &fakeRuntime{url: ptrString("https://hello.yourdomain.come")}
-		svc := service.NewAppServiceWithRuntime(st, rt)
+		svc := NewAppServiceWithRuntime(st, rt)
 
 		dep, err := svc.ProcessNextDeployment(ctx)
 		assert.Error(t, err)
-		assert.ErrorIs(t, err, service.ErrNoWork)
+		assert.ErrorIs(t, err, ErrNoWork)
 		assert.Empty(t, dep.ID)
 		assert.Equal(t, 0, rt.called)
 	})
@@ -181,7 +180,7 @@ func TestProcessNextDeployment(t *testing.T) {
 		ctx := context.Background()
 		st := store.NewMemoryStore()
 		rt := &fakeRuntime{url: ptrString("https://hello.yourdomain.come"), err: errors.New("boom")}
-		svc := service.NewAppServiceWithRuntime(st, rt)
+		svc := NewAppServiceWithRuntime(st, rt)
 
 		app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)})
 		assert.NoError(t, err)
@@ -198,7 +197,7 @@ func TestProcessNextDeployment(t *testing.T) {
 		ctx := context.Background()
 		st := store.NewMemoryStore()
 		rt := &fakeRuntime{url: ptrString("https://hello.yourdomain.come")}
-		svc := service.NewAppServiceWithRuntime(st, rt)
+		svc := NewAppServiceWithRuntime(st, rt)
 
 		app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)})
 		assert.NoError(t, err)
@@ -221,7 +220,7 @@ func TestProcessNextDeployment(t *testing.T) {
 		ctx := context.Background()
 		st := store.NewMemoryStore()
 		rt := &fakeRuntime{url: ptrString("https://hello.yourdomain.come")}
-		svc := service.NewAppServiceWithRuntime(st, rt)
+		svc := NewAppServiceWithRuntime(st, rt)
 
 		expose := false
 		app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Expose: &expose})
@@ -243,27 +242,27 @@ func TestListDeployments(t *testing.T) {
 	t.Run("invalid input: empty app id", func(t *testing.T) {
 		ctx := context.Background()
 		st := store.NewMemoryStore()
-		svc := service.NewAppService(st)
+		svc := NewAppService(st)
 
-		deps, err := svc.ListDeployments(ctx, service.ListDeploymentsParams{AppID: ""})
-		assert.ErrorIs(t, err, service.ErrInvalidInput)
+		deps, err := svc.ListDeployments(ctx, ListDeploymentsParams{AppID: ""})
+		assert.ErrorIs(t, err, ErrInvalidInput)
 		assert.Nil(t, deps)
 	})
 
 	t.Run("not found: app missing", func(t *testing.T) {
 		ctx := context.Background()
 		st := store.NewMemoryStore()
-		svc := service.NewAppService(st)
+		svc := NewAppService(st)
 
-		deps, err := svc.ListDeployments(ctx, service.ListDeploymentsParams{AppID: "missing"})
-		assert.ErrorIs(t, err, service.ErrNotFound)
+		deps, err := svc.ListDeployments(ctx, ListDeploymentsParams{AppID: "missing"})
+		assert.ErrorIs(t, err, ErrNotFound)
 		assert.Nil(t, deps)
 	})
 
 	t.Run("ok: returns deployments in create order", func(t *testing.T) {
 		ctx := context.Background()
 		st := store.NewMemoryStore()
-		svc := service.NewAppService(st)
+		svc := NewAppService(st)
 
 		app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)})
 		assert.NoError(t, err)
@@ -274,7 +273,7 @@ func TestListDeployments(t *testing.T) {
 		assert.NoError(t, st.CreateDeployment(ctx, dep1))
 		assert.NoError(t, st.CreateDeployment(ctx, dep2))
 
-		deps, err := svc.ListDeployments(ctx, service.ListDeploymentsParams{AppID: app.ID})
+		deps, err := svc.ListDeployments(ctx, ListDeploymentsParams{AppID: app.ID})
 		assert.NoError(t, err)
 		assert.Len(t, deps, 2)
 		assert.Equal(t, dep1.ID, deps[0].ID)
@@ -292,9 +291,9 @@ func TestListDeployments(t *testing.T) {
 			Store:       mem,
 			listDepsErr: errors.New("boom"),
 		}
-		svc := service.NewAppService(st)
+		svc := NewAppService(st)
 
-		deps, err := svc.ListDeployments(ctx, service.ListDeploymentsParams{AppID: app.ID})
+		deps, err := svc.ListDeployments(ctx, ListDeploymentsParams{AppID: app.ID})
 		assert.Error(t, err)
 		assert.Nil(t, deps)
 	})

@@ -12,7 +12,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/t0gun/spacescale/internal/adapters/store"
-	"github.com/t0gun/spacescale/internal/service"
 )
 
 // TestCreateApp validates app creation behavior.
@@ -31,16 +30,16 @@ func TestCreateApp(t *testing.T) {
 		{label: "valid no port", name: "hello", image: "nginx:latest", ok: true},
 		{label: "valid expose false", name: "hello", image: "nginx:latest", expose: ptrBool(false), ok: true},
 		{label: "valid env", name: "hello", image: "nginx:latest", port: ptrInt(8080), env: map[string]string{"KEY": "VALUE"}, ok: true},
-		{label: "invalid name", name: "Bad_Name", image: "nginx:latest", port: ptrInt(8080), ok: false, err: service.ErrInvalidInput},
-		{label: "empty image", name: "hello", image: "", port: ptrInt(8080), ok: false, err: service.ErrInvalidInput},
-		{label: "invalid port", name: "hello", image: "nginx:latest", port: ptrInt(0), ok: false, err: service.ErrInvalidInput},
+		{label: "invalid name", name: "Bad_Name", image: "nginx:latest", port: ptrInt(8080), ok: false, err: ErrInvalidInput},
+		{label: "empty image", name: "hello", image: "", port: ptrInt(8080), ok: false, err: ErrInvalidInput},
+		{label: "invalid port", name: "hello", image: "nginx:latest", port: ptrInt(0), ok: false, err: ErrInvalidInput},
 	}
 	for _, tt := range tests {
 		t.Run(tt.label, func(t *testing.T) {
 			ctx := context.Background()
 			st := store.NewMemoryStore()
-			svc := service.NewAppService(st)
-			app, err := svc.CreateApp(ctx, service.CreateAppParams{
+			svc := NewAppService(st)
+			app, err := svc.CreateApp(ctx, CreateAppParams{
 				Name:   tt.name,
 				Image:  tt.image,
 				Port:   tt.port,
@@ -84,22 +83,22 @@ func TestCreateApp(t *testing.T) {
 func TestCreateApp_DuplicateName(t *testing.T) {
 	ctx := context.Background()
 	st := store.NewMemoryStore()
-	svc := service.NewAppService(st)
+	svc := NewAppService(st)
 
-	_, err := svc.CreateApp(ctx, service.CreateAppParams{
+	_, err := svc.CreateApp(ctx, CreateAppParams{
 		Name:  "hello",
 		Image: "nginx:latest",
 		Port:  ptrInt(8080),
 	})
 	assert.NoError(t, err)
 
-	_, err = svc.CreateApp(ctx, service.CreateAppParams{
+	_, err = svc.CreateApp(ctx, CreateAppParams{
 		Name:  "hello",
 		Image: "nginx:latest",
 		Port:  ptrInt(8080),
 	})
 	assert.Error(t, err)
-	assert.ErrorIs(t, err, service.ErrConflict)
+	assert.ErrorIs(t, err, ErrConflict)
 }
 
 // TestGetAppByID verifies get-by-id behavior.
@@ -107,31 +106,31 @@ func TestGetAppByID(t *testing.T) {
 	t.Run("invalid input: empty id", func(t *testing.T) {
 		ctx := context.Background()
 		st := store.NewMemoryStore()
-		svc := service.NewAppService(st)
+		svc := NewAppService(st)
 
 		app, err := svc.GetAppByID(ctx, "")
 		assert.Error(t, err)
-		assert.ErrorIs(t, err, service.ErrInvalidInput)
+		assert.ErrorIs(t, err, ErrInvalidInput)
 		assert.Empty(t, app.ID)
 	})
 
 	t.Run("not found", func(t *testing.T) {
 		ctx := context.Background()
 		st := store.NewMemoryStore()
-		svc := service.NewAppService(st)
+		svc := NewAppService(st)
 
 		app, err := svc.GetAppByID(ctx, "missing")
 		assert.Error(t, err)
-		assert.ErrorIs(t, err, service.ErrNotFound)
+		assert.ErrorIs(t, err, ErrNotFound)
 		assert.Empty(t, app.ID)
 	})
 
 	t.Run("ok", func(t *testing.T) {
 		ctx := context.Background()
 		st := store.NewMemoryStore()
-		svc := service.NewAppService(st)
+		svc := NewAppService(st)
 
-		created, err := svc.CreateApp(ctx, service.CreateAppParams{
+		created, err := svc.CreateApp(ctx, CreateAppParams{
 			Name:  "hello",
 			Image: "nginx:latest",
 			Port:  ptrInt(8080),

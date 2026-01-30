@@ -17,7 +17,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/t0gun/spacescale/internal/adapters/runtime/docker"
 	"github.com/t0gun/spacescale/internal/adapters/store"
-	"github.com/t0gun/spacescale/internal/http_api"
 	"github.com/t0gun/spacescale/internal/service"
 )
 
@@ -29,7 +28,7 @@ func newTestServer(t *testing.T, workerToken string) (*httptest.Server, *store.M
 	rt, _ := docker.New(docker.WithNamePrefix("spacescale-http-api-"))
 	svc := service.NewAppServiceWithRuntime(st, rt)
 
-	api := http_api.NewServer(svc, workerToken)
+	api := NewServer(svc, workerToken)
 	ts := httptest.NewServer(api.Router())
 
 	return ts, st
@@ -257,7 +256,7 @@ func TestProcessNoWork(t *testing.T) {
 func TestProcessNoRuntime(t *testing.T) {
 	st := store.NewMemoryStore()
 	svc := service.NewAppService(st)
-	api := http_api.NewServer(svc, "")
+	api := NewServer(svc, "")
 	ts := httptest.NewServer(api.Router())
 	defer ts.Close()
 
