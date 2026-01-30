@@ -1,5 +1,5 @@
 // Docker runtime tests for deploy behavior.
-package docker_test
+package docker
 
 import (
 	"context"

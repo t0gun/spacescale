@@ -4,7 +4,7 @@
 // Tests verify not found and conflict errors
 // These tests ensure store data integrity
 
-package store_test
+package store
 
 import (
 	"context"

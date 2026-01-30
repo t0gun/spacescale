@@ -1,5 +1,5 @@
 // Test helpers for pointer values in service tests.
-package service_test
+package service
 
 // ptrBool returns a pointer to v.
 func ptrBool(v bool) *bool {

@@ -4,7 +4,7 @@
 // Tests cover exposure disabled behavior
 // These tests guard handler regressions
 
-package http_api_test
+package http_api
 
 import (
 	"bytes"

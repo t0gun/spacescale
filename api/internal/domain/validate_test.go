@@ -4,7 +4,7 @@
 // Validation errors are expected for bad inputs
 // These tests guard validation rules
 
-package domain_test
+package domain
 
 import (
 	"fmt"

@@ -4,7 +4,7 @@
 // Tests cover no work and missing app cases
 // Tests verify url behavior when expose is false
 
-package service_test
+package service
 
 import (
 	"context"

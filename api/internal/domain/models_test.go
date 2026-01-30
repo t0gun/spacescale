@@ -4,7 +4,7 @@
 // Tests verify deployment creation data
 // These tests guard domain rules
 
-package domain_test
+package domain
 
 import (
 	"testing"

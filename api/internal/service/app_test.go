@@ -4,7 +4,7 @@
 // Tests cover duplicate name conflicts
 // These tests keep service behavior stable
 
-package service_test
+package service
 
 import (
 	"context"
