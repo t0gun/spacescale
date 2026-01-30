@@ -16,9 +16,9 @@ import (
 // TestNewAppDefault verifies app defaults and validation.
 func TestNewAppDefault(t *testing.T) {
 	tests := []struct {
-		label string
-		in    NewAppParams
-		ok    bool
+		label      string
+		in         NewAppParams
+		ok         bool
 		wantExpose bool
 	}{
 		{label: "valid app", in: NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)}, ok: true, wantExpose: true},
