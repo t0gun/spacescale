@@ -4,7 +4,7 @@
 // Tests verify not found and conflict errors
 // These tests ensure store data integrity
 
-package store
+package store_test
 
 import (
 	"context"
@@ -12,6 +12,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/t0gun/spacescale/internal/adapters/store"
 	"github.com/t0gun/spacescale/internal/contracts"
 	"github.com/t0gun/spacescale/internal/domain"
 )
@@ -19,7 +20,7 @@ import (
 // TestMemoryStore_CreateApp_OK verifies app creation succeeds.
 func TestMemoryStore_CreateApp_OK(t *testing.T) {
 	ctx := context.Background()
-	st := NewMemoryStore()
+	st := store.NewMemoryStore()
 
 	app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)})
 	assert.NoError(t, err)
@@ -31,7 +32,7 @@ func TestMemoryStore_CreateApp_OK(t *testing.T) {
 // TestMemoryStore_CreateApp_DuplicateName_Conflict verifies duplicate names return conflict.
 func TestMemoryStore_CreateApp_DuplicateName_Conflict(t *testing.T) {
 	ctx := context.Background()
-	st := NewMemoryStore()
+	st := store.NewMemoryStore()
 
 	app1, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)})
 	assert.NoError(t, err)
@@ -48,7 +49,7 @@ func TestMemoryStore_CreateApp_DuplicateName_Conflict(t *testing.T) {
 // TestMemoryStore_GetAppByID_NotFound verifies missing ids return not found.
 func TestMemoryStore_GetAppByID_NotFound(t *testing.T) {
 	ctx := context.Background()
-	st := NewMemoryStore()
+	st := store.NewMemoryStore()
 
 	_, err := st.GetAppByID(ctx, "missing")
 	assert.Error(t, err)
@@ -58,7 +59,7 @@ func TestMemoryStore_GetAppByID_NotFound(t *testing.T) {
 // TestMemoryStore_GetAppByName_NotFound verifies missing names return not found.
 func TestMemoryStore_GetAppByName_NotFound(t *testing.T) {
 	ctx := context.Background()
-	st := NewMemoryStore()
+	st := store.NewMemoryStore()
 
 	_, err := st.GetAppByName(ctx, "missing")
 	assert.Error(t, err)
@@ -68,7 +69,7 @@ func TestMemoryStore_GetAppByName_NotFound(t *testing.T) {
 // TestMemoryStore_ListApps_Count verifies list count.
 func TestMemoryStore_ListApps_Count(t *testing.T) {
 	ctx := context.Background()
-	st := NewMemoryStore()
+	st := store.NewMemoryStore()
 
 	a, err := domain.NewApp(domain.NewAppParams{Name: "a", Image: "nginx:latest", Port: ptrInt(8080)})
 	assert.NoError(t, err)
@@ -86,7 +87,7 @@ func TestMemoryStore_ListApps_Count(t *testing.T) {
 // TestMemoryStore_CreateDeployment_AppMissing_NotFound verifies missing apps return not found.
 func TestMemoryStore_CreateDeployment_AppMissing_NotFound(t *testing.T) {
 	ctx := context.Background()
-	st := NewMemoryStore()
+	st := store.NewMemoryStore()
 
 	dep := domain.NewDeployment("missing-app")
 
@@ -98,7 +99,7 @@ func TestMemoryStore_CreateDeployment_AppMissing_NotFound(t *testing.T) {
 // TestMemoryStore_CreateDeployment_And_GetByID_OK verifies create and fetch by id.
 func TestMemoryStore_CreateDeployment_And_GetByID_OK(t *testing.T) {
 	ctx := context.Background()
-	st := NewMemoryStore()
+	st := store.NewMemoryStore()
 
 	app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)})
 	assert.NoError(t, err)
@@ -117,7 +118,7 @@ func TestMemoryStore_CreateDeployment_And_GetByID_OK(t *testing.T) {
 // TestMemoryStore_ListDeploymentsByAppID_OrderAndReflectsUpdates verifies ordering and updates.
 func TestMemoryStore_ListDeploymentsByAppID_OrderAndReflectsUpdates(t *testing.T) {
 	ctx := context.Background()
-	st := NewMemoryStore()
+	st := store.NewMemoryStore()
 
 	app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)})
 	require.NoError(t, err)
@@ -147,7 +148,7 @@ func TestMemoryStore_ListDeploymentsByAppID_OrderAndReflectsUpdates(t *testing.T
 // TestMemoryStore_ListDeploymentsByAppID_EmptySlice verifies empty results.
 func TestMemoryStore_ListDeploymentsByAppID_EmptySlice(t *testing.T) {
 	ctx := context.Background()
-	st := NewMemoryStore()
+	st := store.NewMemoryStore()
 
 	deps, err := st.ListDeploymentsByAppID(ctx, "missing-app")
 	assert.NoError(t, err)
@@ -157,7 +158,7 @@ func TestMemoryStore_ListDeploymentsByAppID_EmptySlice(t *testing.T) {
 // TestMemoryStore_TakeNextQueuedDeployment_FIFO verifies FIFO queue behavior.
 func TestMemoryStore_TakeNextQueuedDeployment_FIFO(t *testing.T) {
 	ctx := context.Background()
-	st := NewMemoryStore()
+	st := store.NewMemoryStore()
 
 	app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)})
 	require.NoError(t, err)
@@ -183,7 +184,7 @@ func TestMemoryStore_TakeNextQueuedDeployment_FIFO(t *testing.T) {
 // TestMemoryStore_TakeNextQueuedDeployment_SkipsNonQueued skips non-queued deployments.
 func TestMemoryStore_TakeNextQueuedDeployment_SkipsNonQueued(t *testing.T) {
 	ctx := context.Background()
-	st := NewMemoryStore()
+	st := store.NewMemoryStore()
 
 	app, err := domain.NewApp(domain.NewAppParams{Name: "hello", Image: "nginx:latest", Port: ptrInt(8080)})
 	require.NoError(t, err)
@@ -208,7 +209,7 @@ func TestMemoryStore_TakeNextQueuedDeployment_SkipsNonQueued(t *testing.T) {
 // TestMemoryStore_UpdateDeployment_NotFound verifies missing updates fail.
 func TestMemoryStore_UpdateDeployment_NotFound(t *testing.T) {
 	ctx := context.Background()
-	st := NewMemoryStore()
+	st := store.NewMemoryStore()
 
 	dep := domain.NewDeployment("missing-app")
 

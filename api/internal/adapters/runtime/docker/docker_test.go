@@ -1,5 +1,5 @@
 // Docker runtime tests for deploy behavior.
-package docker
+package docker_test
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/t0gun/spacescale/internal/adapters/runtime/docker"
 	"github.com/t0gun/spacescale/internal/domain"
 )
 
@@ -17,8 +18,8 @@ func TestDockerRuntime_Deploy(t *testing.T) {
 		t.Skip("set RUN_DOCKER_TESTS=1 to run docker integration tests")
 	}
 
-	rt, err := New(
-		WithEdge(EdgeConfig{
+	rt, err := docker.New(
+		docker.WithEdge(docker.EdgeConfig{
 			BaseDomain: "localtest.me",
 			TraefikNet: "traefik",
 			Scheme:     "web", // entrypoint name
@@ -51,7 +52,7 @@ func ptrInt(v int) *int {
 
 // TestDockerRuntime_Deploy_EmptyImage validates empty image handling.
 func TestDockerRuntime_Deploy_EmptyImage(t *testing.T) {
-	rt, err := New()
+	rt, err := docker.New()
 	assert.NoError(t, err)
 	app := domain.App{Name: "app", Image: "", Expose: false}
 	url, err := rt.Deploy(context.Background(), app)
@@ -62,7 +63,7 @@ func TestDockerRuntime_Deploy_EmptyImage(t *testing.T) {
 
 // TestDockerRuntime_Deploy_EmptyBaseDomain validates missing base domain.
 func TestDockerRuntime_Deploy_EmptyBaseDomain(t *testing.T) {
-	rt, err := New(WithEdge(EdgeConfig{
+	rt, err := docker.New(docker.WithEdge(docker.EdgeConfig{
 		BaseDomain: "",
 		TraefikNet: "traefik",
 		Scheme:     "web",
@@ -77,7 +78,7 @@ func TestDockerRuntime_Deploy_EmptyBaseDomain(t *testing.T) {
 
 // TestDockerRuntime_Deploy_EmptyTraefikNet validates missing traefik network.
 func TestDockerRuntime_Deploy_EmptyTraefikNet(t *testing.T) {
-	rt, err := New(WithEdge(EdgeConfig{
+	rt, err := docker.New(docker.WithEdge(docker.EdgeConfig{
 		BaseDomain: "localtest.me",
 		TraefikNet: "",
 		Scheme:     "web",
@@ -95,7 +96,7 @@ func TestDockerRuntime_Deploy_ImplicitPort(t *testing.T) {
 	if os.Getenv("RUN_DOCKER_TESTS") != "1" {
 		t.Skip("set RUN_DOCKER_TESTS=1 to run docker integration tests")
 	}
-	rt, err := New(WithEdge(EdgeConfig{
+	rt, err := docker.New(docker.WithEdge(docker.EdgeConfig{
 		BaseDomain: "localtest.me",
 		TraefikNet: "traefik",
 		Scheme:     "web",
@@ -120,7 +121,7 @@ func TestDockerRuntime_Deploy_NoExpose(t *testing.T) {
 	if os.Getenv("RUN_DOCKER_TESTS") != "1" {
 		t.Skip("set RUN_DOCKER_TESTS=1 to run docker integration tests")
 	}
-	rt, err := New(WithEdge(EdgeConfig{
+	rt, err := docker.New(docker.WithEdge(docker.EdgeConfig{
 		BaseDomain: "localtest.me",
 		TraefikNet: "traefik",
 		Scheme:     "web",
