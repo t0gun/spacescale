@@ -1,4 +1,5 @@
 // API service entry point and lifecycle wiring.
+// This file boots the HTTP server and validates core dependencies.
 package main
 
 import (
